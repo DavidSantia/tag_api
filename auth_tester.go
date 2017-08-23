@@ -19,7 +19,7 @@ func HandleAuthTester(w http.ResponseWriter, r *http.Request, _ httprouter.Param
         $.getJSON({
             url: "/authenticate",
             type: "POST",
-            beforeSend: setHeaderAuthPremium,
+            beforeSend: setHeaderAuthBasic,
             success: function(result) { document.getElementById("response").innerHTML = JSON.stringify(result); },
             error: function() { alert("Request error"); }
         });

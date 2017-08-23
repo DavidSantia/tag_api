@@ -48,3 +48,12 @@ type Group struct {
 }
 
 const GroupQuery = "FROM group g"
+
+// ImagesGroups data
+
+type ImagesGroups struct {
+	GroupId int64 `json:"group_id" db:"group_id"`
+	ImageId int64 `json:"image_id" db:"image_id"`
+}
+
+const ImagesGroupsQuery = "FROM images_groups ig"

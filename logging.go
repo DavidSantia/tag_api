@@ -1,8 +1,8 @@
 package tag_api
 
 import (
-	"log"
 	"io/ioutil"
+	"log"
 	"os"
 )
 
@@ -51,4 +51,3 @@ func NewLog(level Level) {
 		Debug: log.New(fDebug, "DEBUG: ", log.LstdFlags),
 	}
 }
-

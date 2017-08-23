@@ -24,4 +24,3 @@ func (data *ApiData) ConnectDB() (err error) {
 	}
 	return
 }
-

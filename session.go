@@ -81,7 +81,7 @@ func HandleAuthenticate(w http.ResponseWriter, r *http.Request, _ httprouter.Par
 		return
 	}
 
-	// Store member data in session
+	// Store user data in session
 	gid := fmt.Sprintf("%d", u.GroupId)
 	err = session.PutString(r, "gid", gid)
 	if err != nil {
@@ -143,7 +143,7 @@ func (data *ApiData) UserFind(pl JwtPayload) (u User, err error) {
 		return
 	}
 
-	// Lookup member
+	// Lookup user
 	query = data.MakeQuery(u, UserQuery, pl.UserId)
 	logging.Debug.Printf("Query: %s\n", query)
 
@@ -158,7 +158,7 @@ func (data *ApiData) UserFind(pl JwtPayload) (u User, err error) {
 
 	// Validate Guid
 	if u.Guid != pl.Guid {
-		err = fmt.Errorf("Invalid Guid %s specified for User %d", pl.Guid, pl.UserId)
+		err = fmt.Errorf("Invalid Guid %s specified for UserId %d", pl.Guid, pl.UserId)
 		return
 	}
 

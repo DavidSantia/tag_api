@@ -29,7 +29,7 @@ func (data *ApiData) LoadImages() {
 	for rows.Next() {
 		err = rows.StructScan(&i)
 		if err != nil {
-			logging.Error.Printf("Load Image: %v\n", err)
+			logging.Error.Printf("Load Images: %v\n", err)
 			continue
 		}
 		data.ImageMap[i.Id] = i

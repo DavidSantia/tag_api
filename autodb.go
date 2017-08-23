@@ -10,6 +10,12 @@ func (data *ApiData) AutoLoad() {
 
 	// Load images
 	data.LoadImages()
+
+	// Load groups
+	data.LoadGroups()
+
+	// Load map of images for each group
+	data.LoadImagesGroups()
 }
 
 // Helper functions
