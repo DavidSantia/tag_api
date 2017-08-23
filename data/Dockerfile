@@ -14,4 +14,6 @@ RUN echo "character_set_client = utf8" >> /etc/my.cf && \
     echo "sql_mode = STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION" >> /etc/my.cnf
 
 # Initialize DB
-ADD images-users.sql /docker-entrypoint-initdb.d/
+ADD grant.sql /docker-entrypoint-initdb.d/
+ADD make-tables.sql /docker-entrypoint-initdb.d/
+ADD sample-data.sql /docker-entrypoint-initdb.d/
