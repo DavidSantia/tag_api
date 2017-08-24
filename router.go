@@ -17,6 +17,7 @@ func NewRouter() (router *httprouter.Router) {
 	router.Handle("POST", "/authenticate", HandleAuthenticate)
 	router.Handle("GET", "/image", HandleAllImages)
 	router.Handle("GET", "/image/:Id", HandleImage)
+	router.Handle("GET", "/user", HandleUser)
 
 	return
 }

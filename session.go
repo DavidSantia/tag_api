@@ -129,6 +129,8 @@ func GetUserFromSession(r *http.Request) (u User, err error) {
 	return
 }
 
+// Data Interfaces
+
 func (data *ApiData) UserFind(pl JwtPayload) (u User, err error) {
 	var query string
 	u = User{}
