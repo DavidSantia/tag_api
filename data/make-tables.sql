@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS groups (
   id int(11) NOT NULL AUTO_INCREMENT,
   name varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id`)
-);
+) DEFAULT CHARSET utf8;
 
 --
 -- Create images table
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS images (
   organization varchar(100) DEFAULT NULL,
   media varchar(25) DEFAULT NULL,
   PRIMARY KEY (`id`)
-);
+) DEFAULT CHARSET utf8;
 
 --
 -- Create images_groups table
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS images_groups (
   group_id int(11) NOT NULL,
   image_id int(11) NOT NULL,
   PRIMARY KEY (`id`)
-);
+) DEFAULT CHARSET utf8;
 
 --
 -- Create users table
@@ -55,4 +55,4 @@ CREATE TABLE IF NOT EXISTS users (
   gender varchar(1) DEFAULT NULL,
   status boolean DEFAULT NULL,
   PRIMARY KEY (`id`)
-);
+) DEFAULT CHARSET utf8;

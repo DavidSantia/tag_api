@@ -1,3 +1,5 @@
+SET NAMES utf8;
+
 --
 -- Sample data for groups
 --
