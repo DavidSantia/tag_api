@@ -18,7 +18,7 @@ type User struct {
 	Status     bool   `json:"status" db:"status"`
 }
 
-const UserQuery = "FROM user u " +
+const UserQuery = "FROM users u " +
 	"WHERE u.id = %d"
 
 // Image data
@@ -36,18 +36,18 @@ type Image struct {
 	Media        string  `json:"media" db:"media"`
 }
 
-const ImageQuery = "FROM image i " +
+const ImageQuery = "FROM images i " +
 	"WHERE i.media IS NOT NULL"
 
 // Group data
 
 type Group struct {
 	Id              int64           `json:"id" db:"id"`
-	Name            int64           `json:"name" db:"name"`
+	Name            string          `json:"name" db:"name"`
 	ImagesGroupsMap ImagesGroupsMap `json:"-"`
 }
 
-const GroupQuery = "FROM group g"
+const GroupQuery = "FROM groups g"
 
 // ImagesGroups data
 

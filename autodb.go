@@ -37,12 +37,12 @@ func (data *ApiData) MakeSelect(dt interface{}) (sel string) {
 				sql_tag, ok = field.Tag.Lookup("sql")
 				if ok {
 					if sql_tag == "-" {
-						logging.Debug.Printf("Skipping field: %s [%s]\n", field.Name, field.Type)
+						Log.Debug.Printf("Skipping field: %s [%s]\n", field.Name, field.Type)
 						continue
 					}
 					tag = sql_tag + " AS " + tag
 				}
-				logging.Debug.Printf("Select %q for field: %s [%s]\n", tag, field.Name, field.Type)
+				Log.Debug.Printf("Select %q for field: %s [%s]\n", tag, field.Name, field.Type)
 				fields = append(fields, tag)
 			}
 		}

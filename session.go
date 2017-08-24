@@ -51,8 +51,8 @@ func HandleAuthenticate(w http.ResponseWriter, r *http.Request, _ httprouter.Par
 		return
 	}
 
-	logging.Debug.Printf("Headers = %+v\n", headers)
-	logging.Debug.Printf("Payload = %s\n", payload)
+	Log.Debug.Printf("Headers = %+v\n", headers)
+	Log.Debug.Printf("Payload = %s\n", payload)
 
 	// Make sure payload is JSON
 	if len(payload) == 0 || payload[0] != '{' {
@@ -60,7 +60,7 @@ func HandleAuthenticate(w http.ResponseWriter, r *http.Request, _ httprouter.Par
 		return
 	}
 
-	logging.Debug.Printf("Authenticate Payload: %s\n", payload)
+	Log.Debug.Printf("Authenticate Payload: %s\n", payload)
 
 	pl := JwtPayload{}
 	err = json.Unmarshal([]byte(payload), &pl)
@@ -145,7 +145,7 @@ func (data *ApiData) UserFind(pl JwtPayload) (u User, err error) {
 
 	// Lookup user
 	query = data.MakeQuery(u, UserQuery, pl.UserId)
-	logging.Debug.Printf("Query: %s\n", query)
+	Log.Debug.Printf("Query: %s\n", query)
 
 	err = data.Db.QueryRowx(query).StructScan(&u)
 	if err == sql.ErrNoRows {

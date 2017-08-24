@@ -11,6 +11,7 @@ import (
 func NewData() (data *ApiData) {
 	data = &ApiData{
 		GroupMap: make(GroupMap),
+		ImageMap: make(ImageMap),
 	}
 	data.InitSessions()
 	d = data
@@ -20,6 +21,7 @@ func NewData() (data *ApiData) {
 // Local data - most functions are methods of this
 type ApiData struct {
 	Debug          bool
+	Logfile        string
 	Router         *httprouter.Router
 	Db             *sqlx.DB
 	Redis          redis.Conn

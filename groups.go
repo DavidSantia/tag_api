@@ -14,10 +14,10 @@ func (data *ApiData) LoadGroups() {
 
 	// Load partner map
 	query = data.MakeQuery(g, GroupQuery)
-	logging.Debug.Printf("GroupQuery: %s\n", query)
+	Log.Debug.Printf("GroupQuery: %s\n", query)
 	rows, err = data.Db.Queryx(query)
 	if err != nil {
-		logging.Error.Printf("Load Groups: %v\n", err)
+		Log.Error.Printf("Load Groups: %v\n", err)
 		return
 	}
 	for rows.Next() {
@@ -26,12 +26,12 @@ func (data *ApiData) LoadGroups() {
 		}
 		err = rows.StructScan(&g)
 		if err != nil {
-			logging.Error.Printf("Load Group: %v\n", err)
+			Log.Error.Printf("Load Group: %v\n", err)
 			continue
 		}
 		data.GroupMap[g.Id] = g
 	}
-	logging.Info.Printf("Load Partners: %d entries total\n", len(data.GroupMap))
+	Log.Info.Printf("Load Partners: %d entries total\n", len(data.GroupMap))
 }
 
 func (data *ApiData) LoadImagesGroups() {
@@ -45,16 +45,16 @@ func (data *ApiData) LoadImagesGroups() {
 
 	// Get partner merchant mapping
 	query = data.MakeQuery(ig, ImagesGroupsQuery)
-	logging.Debug.Printf("ImagesGroupsQuery: %s\n", query)
+	Log.Debug.Printf("ImagesGroupsQuery: %s\n", query)
 	rows, err = data.Db.Queryx(query)
 	if err != nil {
-		logging.Error.Printf("Load ImagesGroups: %v\n", err)
+		Log.Error.Printf("Load ImagesGroups: %v\n", err)
 		return
 	}
 	for rows.Next() {
 		err = rows.StructScan(&ig)
 		if err != nil {
-			logging.Error.Printf("Load ImagesGroups: %v\n", err)
+			Log.Error.Printf("Load ImagesGroups: %v\n", err)
 			continue
 		}
 		_, ok = data.ImageMap[ig.ImageId]
@@ -65,16 +65,16 @@ func (data *ApiData) LoadImagesGroups() {
 		}
 		g, ok = data.GroupMap[ig.GroupId]
 		if !ok {
-			logging.Error.Printf("Load ImagesGroups: ImageId %d on invalid GroupId %d\n", ig.ImageId, ig.GroupId)
+			Log.Error.Printf("Load ImagesGroups: ImageId %d on invalid GroupId %d\n", ig.ImageId, ig.GroupId)
 		}
 		g.ImagesGroupsMap[ig.ImageId] = true
 		data.GroupMap[ig.GroupId] = g
 		entries++
 	}
 	if ignored > 0 {
-		logging.Info.Printf("Load ImagesGroups: %d entries total [ignored %d invalid ImageIds]\n",
+		Log.Info.Printf("Load ImagesGroups: %d entries total [ignored %d invalid ImageIds]\n",
 			entries, ignored)
 	} else {
-		logging.Info.Printf("Load ImagesGroups: %d entries total\n", entries)
+		Log.Info.Printf("Load ImagesGroups: %d entries total\n", entries)
 	}
 }

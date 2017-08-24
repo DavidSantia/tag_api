@@ -3,6 +3,7 @@ package tag_api
 import (
 	"fmt"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -17,7 +18,7 @@ func (data *ApiData) ConnectDB() (err error) {
 	name = DbName
 	resource = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, pass, host, port, name)
 
-	logging.Info.Printf("Connecting to %s on %s", name, host)
+	Log.Info.Printf("Connecting to %s on %s", name, host)
 	data.Db, err = sqlx.Connect("mysql", resource)
 	if err != nil {
 		return err

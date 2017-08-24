@@ -16,35 +16,47 @@ type Logging struct {
 type Level uint
 
 const (
-	logNONE Level = iota
-	logERROR
-	logWARN
-	logINFO
-	logDEBUG
+	LogNONE Level = iota
+	LogERROR
+	LogWARN
+	LogINFO
+	LogDEBUG
 )
 
-var logging Logging
+var Log Logging
 
-func NewLog(level Level) {
+func NewLog(level Level, logfile string) {
+	var fLog *os.File = os.Stderr
+	var err error
+
 	fError := ioutil.Discard
 	fWarn := ioutil.Discard
 	fInfo := ioutil.Discard
 	fDebug := ioutil.Discard
 
-	if level > logNONE {
-		fError = os.Stderr
-	}
-	if level > logERROR {
-		fWarn = os.Stderr
-	}
-	if level > logWARN {
-		fInfo = os.Stderr
-	}
-	if level > logINFO {
-		fDebug = os.Stderr
+	// Output to logfile, if specified
+	if len(logfile) != 0 {
+		fLog, err = os.OpenFile(logfile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		if err != nil {
+			log.Printf("Error opening logfile: %v\n", err)
+			fLog = os.Stderr
+		}
 	}
 
-	logging = Logging{
+	if level > LogNONE {
+		fError = fLog
+	}
+	if level > LogERROR {
+		fWarn = fLog
+	}
+	if level > LogWARN {
+		fInfo = fLog
+	}
+	if level > LogINFO {
+		fDebug = fLog
+	}
+
+	Log = Logging{
 		Error: log.New(fError, "ERROR: ", log.LstdFlags),
 		Warn:  log.New(fWarn, " WARN: ", log.LstdFlags),
 		Info:  log.New(fInfo, " INFO: ", log.LstdFlags),

@@ -20,21 +20,21 @@ func (data *ApiData) LoadImages() {
 
 	// Load images
 	query = data.MakeQuery(i, ImageQuery)
-	logging.Debug.Printf("ImageQuery: %s\n", query)
+	Log.Debug.Printf("ImageQuery: %s\n", query)
 	rows, err = data.Db.Queryx(query)
 	if err != nil {
-		logging.Error.Printf("Load Images: %v\n", err)
+		Log.Error.Printf("Load Images: %v\n", err)
 		return
 	}
 	for rows.Next() {
 		err = rows.StructScan(&i)
 		if err != nil {
-			logging.Error.Printf("Load Images: %v\n", err)
+			Log.Error.Printf("Load Images: %v\n", err)
 			continue
 		}
 		data.ImageMap[i.Id] = i
 	}
-	logging.Info.Printf("Load Images: %d entries total\n", len(data.ImageMap))
+	Log.Info.Printf("Load Images: %d entries total\n", len(data.ImageMap))
 }
 
 // HTTP Handlers
@@ -133,6 +133,8 @@ func (data *ApiData) FindImage(image_id, group_id int64) (i Image, err error) {
 	if !g.ImagesGroupsMap[image_id] {
 		err = fmt.Errorf("ImageId %d not valid for GroupId %d", image_id, group_id)
 	}
+
+	i, _ = data.ImageMap[image_id]
 	return
 }
 
@@ -150,7 +152,7 @@ func (data *ApiData) CreateImage(i Image) (err error) {
 		return
 	}
 
-	logging.Debug.Printf("SET %s %s\n", tag, reply)
+	Log.Debug.Printf("SET %s %s\n", tag, reply)
 	return
 }
 
@@ -170,6 +172,6 @@ func (data *ApiData) DeleteImage(id int64) {
 		return
 	}
 
-	logging.Debug.Printf("DEL %s %s\n", tag, reply)
+	Log.Debug.Printf("DEL %s %s\n", tag, reply)
 	return
 }

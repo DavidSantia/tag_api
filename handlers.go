@@ -21,7 +21,7 @@ func HandleError(w http.ResponseWriter, status int, message string) {
 	w.WriteHeader(status)
 
 	status_txt := http.StatusText(status)
-	logging.Error.Printf("%s: %s\n", status_txt, message)
+	Log.Error.Printf("%s: %s\n", status_txt, message)
 	eResp := ErrorResponse{
 		Error:  message,
 		Status: status_txt,
