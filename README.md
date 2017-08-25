@@ -2,6 +2,7 @@
 API using Go-lang struct tags to load SQL data, and implement JSON endpoints
 
 * This project includes a database container with sample Image and User data
+* The images come from https://clients3.google.com/cast/chromecast/home
 
 You can clone the project with
 ```sh
