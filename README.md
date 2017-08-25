@@ -82,7 +82,7 @@ The **sql** tag is useful when
 * you want to insert an IFNULL or other logic
 
 
-### func (data *ApiData) MakeQuery()
+### func (data *ApiData) MakeQuery
 ```go
 func (data *ApiData) MakeQuery(dt interface{}, query string, v ...interface{}) (finalq string)
 ```
