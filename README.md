@@ -98,15 +98,15 @@ The final query, a combination of the auto-generated SELECT statement, and the r
 
 ### Example Code
 ```go
-	var i Image
+var i Image
 
-	// Load images
-	query := data.MakeQuery(i, ImageQuery)
-	rows, err := data.Db.Queryx(query)
-	if err != nil {
-		fmt.Printf("Load Images: %v\n", err)
-		return
-	}
+// Load images
+query := data.MakeQuery(i, ImageQuery)
+rows, err := data.Db.Queryx(query)
+if err != nil {
+	fmt.Printf("Load Images: %v\n", err)
+	return
+}
 ```
 
 Notice we have automatically assembled the query as follows:
@@ -118,12 +118,12 @@ SELECT id, width, height, url, title, artist, gallery, organization, media
 
 Because we are using the sqlx package, we also load each struct in one step with **rows.StructScan()** as shown
 ```go
-	for rows.Next() {
-		err = rows.StructScan(&i)
-		if err != nil {
-			fmt.Printf("Load Images: %v\n", err)
-			continue
-		}
-		data.ImageMap[i.Id] = i
+for rows.Next() {
+	err = rows.StructScan(&i)
+	if err != nil {
+		fmt.Printf("Load Images: %v\n", err)
+		continue
 	}
+	data.ImageMap[i.Id] = i
+}
 ```
