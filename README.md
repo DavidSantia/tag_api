@@ -6,24 +6,24 @@ API using Go-lang struct tags to load SQL data, and implement JSON endpoints
 
 You can clone the project with
 ```sh
-go get "github.com/DavidSantia/tag_api"
+$ go get "github.com/DavidSantia/tag_api"
 ```
 
 It also uses govvv to provide the Github version string in the code.
 ```sh
-go get "github.com/ahmetb/govvv"
+$ go get "github.com/ahmetb/govvv"
 ```
 
 ## Database Setup
 
 Build the database container as follows
 ```sh
-docker build -t tagdemo ./data
+$ docker build -t tagdemo ./data
 ```
 
 Start the MySQL container as follows:
 ```sh
-docker run --name tag_api_db --rm -p 6603:3306 tagdemo
+$ docker run --name tag_api_db --rm -p 6603:3306 tagdemo
 ```
 As shown above, we are mapping the MySQL default port 3306 from the container, to 6603 on localhost.  This was chosen so as to not conflict in case you have locally installed a MySQL server using the default port.
 
@@ -38,13 +38,13 @@ The database will be ready after you see the message:
 
 Build the API server as follows
 ```sh
-cd api
-govvv build
+$ cd api
+$ govvv build
 ```
 
 You can get command-line help as follows:
 ```sh
-./api -help
+$ ./api -help
 Usage of ./api:
   -debug
     	Debug logging
