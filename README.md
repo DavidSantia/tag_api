@@ -24,7 +24,7 @@ Start the MySQL container as follows:
 ```sh
 docker run --name tag_api_db --rm -p 6603:3306 tagdemo
 ```
-As shown above, we are mapping the MySQL default port 3306 from the container, to 6603 on localhost.  This was chosen so as to not conflict if you have a locally installed MySQL on the default port.
+As shown above, we are mapping the MySQL default port 3306 from the container, to 6603 on localhost.  This was chosen so as to not conflict in case you have locally installed a MySQL server using the default port.
 
 The database will be ready after you see the message:
 ```
