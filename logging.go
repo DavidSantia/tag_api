@@ -1,6 +1,7 @@
 package tag_api
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -38,8 +39,10 @@ func NewLog(level Level, logfile string) {
 	if len(logfile) != 0 {
 		fLog, err = os.OpenFile(logfile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
-			log.Printf("Error opening logfile: %v\n", err)
+			fmt.Printf("Error opening logfile: %v\n", err)
 			fLog = os.Stderr
+		} else {
+			fmt.Printf("Logging to %q\n", logfile)
 		}
 	}
 

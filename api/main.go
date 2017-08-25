@@ -37,13 +37,6 @@ func main() {
 	// Initialize HTTP router
 	data.Router = tag_api.NewRouter()
 
-	// Initialize Redis
-	//err = data.ConnectRedis()
-	//if err != nil {
-	//	tag_api.Log.Error.Println(err)
-	//	os.Exit(1)
-	//}
-
 	// Connect SQL DB
 	err = data.ConnectDB()
 	if err != nil {
