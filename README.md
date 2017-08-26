@@ -6,24 +6,24 @@ API using Go-lang struct tags to load SQL data, and implement JSON endpoints
 
 You can clone the project with
 ```sh
-$ go get "github.com/DavidSantia/tag_api"
+go get "github.com/DavidSantia/tag_api"
 ```
 
 It also uses govvv to provide the Github version string in the code.
 ```sh
-$ go get "github.com/ahmetb/govvv"
+go get "github.com/ahmetb/govvv"
 ```
 
 ## Database Setup
 
 Build the database container as follows
 ```sh
-$ docker build -t tagdemo ./data
+docker build -t tagdemo ./data
 ```
 
 Start the MySQL container as follows:
 ```sh
-$ docker run --name tag_api_db --rm -p 6603:3306 tagdemo
+docker run --name tag_api_db --rm -p 6603:3306 tagdemo
 ```
 As shown above, we are mapping the MySQL default port 3306 from the container, to 6603 on localhost.  This was chosen so as to not conflict in case you have locally installed a MySQL server using the default port.
 
@@ -38,13 +38,12 @@ The database will be ready after you see the message:
 
 Build the API server as follows
 ```sh
-$ cd api
-$ govvv build
+cd api
+govvv build
 ```
 
-You can get command-line help as follows:
-```sh
-$ ./api -help
+Use `./api -help` to get command-line usage
+```
 Usage of ./api:
   -debug
     	Debug logging
@@ -54,7 +53,7 @@ Usage of ./api:
 
 ## How it works
 
-Use the *-debug* flag to see the SQL queries that are being auto-generated from the struct tags.
+The DB loader uses the Go [reflect](https://golang.org/pkg/reflect) package to auto-generate the SELECT statement from the struct tags.
 
 ### Example Struct
 ```go
@@ -82,6 +81,19 @@ The **sql** tag is useful when
 * using joined statements with otherwise ambiguous field names
 * you want to insert an IFNULL or other logic
 
+Use `./api -debug` to debug the SQL queries that are being auto-generated from the struct tags.
+```
+DEBUG: 2017/08/26 14:07:03 Select "id" for field: Id [int64]
+DEBUG: 2017/08/26 14:07:03 Select "width" for field: Width [int64]
+DEBUG: 2017/08/26 14:07:03 Select "height" for field: Height [int64]
+DEBUG: 2017/08/26 14:07:03 Select "url" for field: Url [string]
+DEBUG: 2017/08/26 14:07:03 Select "title" for field: Title [*string]
+DEBUG: 2017/08/26 14:07:03 Select "artist" for field: Artist [*string]
+DEBUG: 2017/08/26 14:07:03 Select "gallery" for field: Gallery [*string]
+DEBUG: 2017/08/26 14:07:03 Select "organization" for field: Organization [*string]
+DEBUG: 2017/08/26 14:07:03 Select "media" for field: Media [string]
+DEBUG: 2017/08/26 14:07:03 ImageQuery: SELECT id, width, height, url, title, artist, gallery, organization, media FROM images i WHERE i.media IS NOT NULL
+```
 
 ### func (data *ApiData) MakeQuery
 ```go
