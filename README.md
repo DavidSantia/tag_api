@@ -156,7 +156,7 @@ By browsing to [localhost:8080/authenticate](http://localhost:8080/authenticate)
 
 Once authenticated, your browser will have a Session cookie to allow you to continue using the API.
 
-You can then go to
+You can then browse to
 
 * [localhost:8080/image](http://localhost:8080/image) to see images you have access to
 * [localhost:8080/image/4](http://localhost:8080/image/4) to see image id 4
