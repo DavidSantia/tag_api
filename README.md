@@ -35,7 +35,7 @@ The database will be ready after you see the message:
 [Entrypoint] MySQL init process done. Ready for start up.
 ```
 
-## API Setup
+## API Server Setup
 
 Build the API server as follows
 ```sh
