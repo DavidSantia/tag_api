@@ -158,4 +158,4 @@ Once authenticated, your browser will have a Session cookie to allow you to cont
 You can then go to
 
 * [localhost:8080/image](http://localhost:8080/image) to see images you have access to
-* [localhost:8080/image](http://localhost:8080/user) to see your user profile data
+* [localhost:8080/user](http://localhost:8080/user) to see your user profile data
