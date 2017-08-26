@@ -27,7 +27,7 @@ docker run --name tag_api_db --rm -p 6603:3306 tagdemo
 ```
 As shown above, we are mapping the MySQL default port 3306 from the container, to 6603 on localhost.
 
-* Port 6603 was chosen so as to not conflict with a local installation of MySQL server on the default port
+* Port 6603 does not conflict with any local installations of MySQL server on the default port
 * If you want to specify a different port on the docker run command, also edit **DbPort** in [config.go](https://github.com/DavidSantia/tag_api/blob/master/config.go)
 
 The database will be ready after you see the message:
