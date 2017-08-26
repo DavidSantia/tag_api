@@ -30,8 +30,6 @@ As shown above, we are mapping the MySQL default port 3306 from the container, t
 The database will be ready after you see the message:
 ```
 [Entrypoint] MySQL init process done. Ready for start up.
-
-[Entrypoint] Starting MySQL 5.7.19-1.1.0
 ```
 
 ## API Setup
