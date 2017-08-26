@@ -109,7 +109,7 @@ This takes two inputs:
 * **dt**: the struct you are loading data into
 * **query**: the FROM and WHERE part of a query
 
-The query can contain optional format 'verbs' (see the Go [fmt](https://golang.org/pkg/fmt/#hdr-Printing) package).  You then specify **v** parameters to substitute for these.
+It can also take optional **v** parameters.  If using these, include a format 'verb' (see the Go [fmt](https://golang.org/pkg/fmt/#hdr-Printing) package) in your query for each parameter.
 
 MakeQuery returns one output:
 The final query, a combination of the auto-generated SELECT statement, and the rest of the query.
