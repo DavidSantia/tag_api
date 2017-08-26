@@ -53,7 +53,7 @@ Usage of ./api:
 
 ## How it works
 
-The DB loader uses the Go [reflect](https://golang.org/pkg/reflect) package to auto-generate the SELECT statement from the struct tags.
+The database loader uses the Go [reflect](https://golang.org/pkg/reflect) package to auto-generate SELECT statements from the struct tags.
 
 ### Example Struct
 ```go
