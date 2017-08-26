@@ -35,6 +35,11 @@ The database will be ready after you see the message:
 [Entrypoint] MySQL init process done. Ready for start up.
 ```
 
+If you need to stop the MySQL container, use
+```sh
+docker kill tag_api_db
+```
+
 ## API Server Setup
 
 Build the API server as follows
