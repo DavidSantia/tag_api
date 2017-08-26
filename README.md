@@ -139,3 +139,23 @@ for rows.Next() {
 	data.ImageMap[i.Id] = i
 }
 ```
+### Accessing the API
+Once you have the API server up and running, you can use your browser to authenticate, and access data.
+
+The following endpoints are defined:
+```go
+router.Handle("GET", "/authenticate", HandleAuthTester)
+router.Handle("POST", "/authenticate", HandleAuthenticate)
+router.Handle("GET", "/image", HandleAllImages)
+router.Handle("GET", "/image/:Id", HandleImage)
+router.Handle("GET", "/user", HandleUser)
+```
+
+By browsing to [localhost:8080/authenticate](http://localhost:8080/authenticate), you will see a test framework with two buttons.  Each button authenticates you as a particular user from the sample database, either in the Basic or Premium group.
+
+Once authenticated, your browser will have a Session cookie to allow you to continue using the API.
+
+You can then go to
+
+* [localhost:8080/image](http://localhost:8080/image) to see images you have access to
+* [localhost:8080/image](http://localhost:8080/user) to see your user profile data
