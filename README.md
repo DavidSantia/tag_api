@@ -72,7 +72,7 @@ type Image struct {
 const ImageQuery = "FROM images i " +
 	"WHERE i.media IS NOT NULL"
 ```
-Tags shown above are as follows:
+Tags shown above are interpreted as follows:
 * **json**: field name returned in API
 * **db**: field name in SQL
 * **sql**: optional SQL for SELECT
