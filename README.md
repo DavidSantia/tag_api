@@ -111,7 +111,7 @@ This takes two inputs:
 
 It can also take optional **v** parameters.  If using these, include a format 'verb' (see the Go [fmt](https://golang.org/pkg/fmt/#hdr-Printing) package) in your query for each parameter.
 
-MakeQuery returns one output: The final query. This will be a combination of the auto-generated SELECT statement, and the rest of the query.
+MakeQuery returns one output, the final query. This will be a combination of the auto-generated SELECT statement, and the rest of the query.
 
 ### Example Code
 ```go
