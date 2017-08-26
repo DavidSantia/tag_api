@@ -1,8 +1,8 @@
 # tag_api
 API using Go-lang struct tags to load SQL data, and implement JSON endpoints
 
-* This project includes a database container with sample Image and User data
-* The images come from https://clients3.google.com/cast/chromecast/home
+* This project builds a Docker database container with sample Image and User data
+* The sample data images come from https://clients3.google.com/cast/chromecast/home
 
 You can clone the project with
 ```sh
