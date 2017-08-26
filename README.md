@@ -104,9 +104,9 @@ This takes two inputs:
 * **dt**: the struct you are loading data into
 * **query**: the FROM and WHERE part of a query
 
-The query can contain optional format 'verbs'; optional **v** parameters replace these via fmt.Sprintf
+The query can contain optional format 'verbs' (see the Go [fmt](https://golang.org/pkg/fmt/#hdr-Printing) package).  You then specify **v** parameters to substitute for these.
 
-It returns one output:
+MakeQuery returns one output:
 The final query, a combination of the auto-generated SELECT statement, and the rest of the query.
 
 ### Example Code
