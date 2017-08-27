@@ -33,7 +33,6 @@ type Image struct {
 	Artist       *string `json:"artist" db:"artist"`
 	Gallery      *string `json:"gallery" db:"gallery"`
 	Organization *string `json:"organization" db:"organization"`
-	Media        string  `json:"media" db:"media"`
 }
 
 const ImageQuery = "FROM images i " +
