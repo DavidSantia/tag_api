@@ -27,9 +27,6 @@ func (data *ApiData) InitSessions() {
 
 	// whether the session cookie should be retained after a user closes their browser
 	data.SessionManager.Persist(false)
-
-	// Set the Secure flag on the session cookie.
-	data.SessionManager.Secure(true)
 }
 
 // HTTP Handlers
