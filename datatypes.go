@@ -1,8 +1,7 @@
 package tag_api
 
 import (
-	"net/http"
-
+	"github.com/alexedwards/scs"
 	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
 	"github.com/julienschmidt/httprouter"
@@ -27,7 +26,7 @@ type ApiData struct {
 	Redis          redis.Conn
 	GroupMap       GroupMap
 	ImageMap       ImageMap
-	SessionManager func(http.Handler) http.Handler
+	SessionManager *scs.Manager
 }
 
 type GroupMap map[int64]Group

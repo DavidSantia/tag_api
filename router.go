@@ -25,7 +25,7 @@ func NewRouter() (router *httprouter.Router) {
 func (data *ApiData) StartServer() {
 	Log.Info.Println("API Ready")
 
-	err := http.ListenAndServe(":8080", data.SessionManager(data.Router))
+	err := http.ListenAndServe(":8080", data.Router)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

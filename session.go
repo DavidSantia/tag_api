@@ -9,26 +9,27 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alexedwards/scs/engine/memstore"
-	"github.com/alexedwards/scs/session"
+	"github.com/alexedwards/scs"
 	"github.com/dvsekhvalnov/jose2go"
 	"github.com/julienschmidt/httprouter"
 )
 
 func (data *ApiData) InitSessions() {
 
-	// Initialise a new storage engine
-	engine := memstore.New(0)
+	// Initialise the session manager
+	data.SessionManager = scs.NewCookieManager("u46IpCV9y5Vlur8YvODJEhgOY8m9JVE4")
 
-	// Initialise the session manager middleware
-	data.SessionManager = session.Manage(engine,
-		// maximum length of time a session can be inactive
-		session.IdleTimeout(30*time.Minute),
-		// maximum length of time that a session is valid
-		session.Lifetime(8*time.Hour),
-		// whether the session cookie should be retained after a user closes their browser
-		session.Persist(false),
-	)
+	// maximum length of time a session can be inactive
+	data.SessionManager.IdleTimeout(30 * time.Minute)
+
+	// maximum length of time that a session is valid
+	data.SessionManager.Lifetime(8 * time.Hour)
+
+	// whether the session cookie should be retained after a user closes their browser
+	data.SessionManager.Persist(false)
+
+	// Set the Secure flag on the session cookie.
+	data.SessionManager.Secure(true)
 }
 
 // HTTP Handlers
@@ -83,12 +84,14 @@ func HandleAuthenticate(w http.ResponseWriter, r *http.Request, _ httprouter.Par
 
 	// Store user data in session
 	gid := fmt.Sprintf("%d", u.GroupId)
-	err = session.PutString(r, "gid", gid)
+
+	session := d.SessionManager.Load(r)
+	err = session.PutString(w, "gid", gid)
 	if err != nil {
 		HandleError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	err = session.PutBytes(r, "json", b)
+	err = session.PutBytes(w, "json", b)
 	if err != nil {
 		HandleError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -105,7 +108,8 @@ func GetGroupIdFromSession(r *http.Request) (group_id int64, err error) {
 	var gid string
 
 	// See if session is authenticated
-	gid, err = session.GetString(r, "gid")
+	session := d.SessionManager.Load(r)
+	gid, err = session.GetString("gid")
 	if len(gid) == 0 {
 		err = fmt.Errorf("Session not authenticated")
 	}
@@ -116,7 +120,8 @@ func GetGroupIdFromSession(r *http.Request) (group_id int64, err error) {
 func GetUserFromSession(r *http.Request) (u User, err error) {
 
 	// See if session is authenticated
-	b, err := session.GetBytes(r, "json")
+	session := d.SessionManager.Load(r)
+	b, err := session.GetBytes("json")
 	if err != nil {
 		return
 	}
