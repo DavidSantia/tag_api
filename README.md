@@ -158,9 +158,7 @@ router.Handle("GET", "/user", HandleUser)
 By browsing to [localhost:8080/authenticate](http://localhost:8080/authenticate), you will see a test framework with two buttons.
 ![Figure 1: Architecture](https://raw.githubusercontent.com/DavidSantia/tag_api/master/README-2buttons.png)
 
-Each button authenticates you as a particular user from the sample database, either in the Basic or Premium group.
-
-Once authenticated, your browser will have a Session cookie to allow you to continue using the API.
+Each button authenticates you as a particular user from the sample database, either in the Basic or Premium group. Once authenticated, your browser will have a Session cookie to allow you to continue using the API.
 
 You can then browse to
 
