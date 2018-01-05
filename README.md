@@ -3,7 +3,7 @@ API using Go-lang struct tags to load SQL data, and implement JSON endpoints.
 
 ## Goal
 
-Demonstrate how simple it is to prototype and modify an API.
+Demonstrate how simple it is to prototype and modify an API in Go.
 
 By simply adjusting or adding a field to a Go struct, you automatically update both how the server loads from the database, as well as what it outputs for the API endpoint.
 
