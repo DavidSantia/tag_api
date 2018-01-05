@@ -1,5 +1,7 @@
 # tag_api
-API using Go-lang struct tags to load SQL data, and implement JSON endpoints.  The goal of this project is to demonstrate how simple it is to prototype and modify an API.  By simply adjusting or adding a field to a Go struct, it automatically updates both how the API loads from the database, and outputs to the API.
+API using Go-lang struct tags to load SQL data, and implement JSON endpoints.  The goal of this project is to demonstrate how simple it is to prototype and modify an API.
+
+By simply adjusting or adding a field to a Go struct, you automatically update both how the API loads from the database, as well as what it outputs in an endpoint.
 
 * This project builds a Docker database container with sample Image and User data
 * The sample data images come from https://clients3.google.com/cast/chromecast/home
