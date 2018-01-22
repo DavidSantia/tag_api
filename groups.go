@@ -12,6 +12,8 @@ func (data *ApiData) LoadGroups() {
 	var g Group
 	var rows *sqlx.Rows
 
+	data.GroupMap = make(GroupMap)
+
 	// Load partner map
 	query = data.MakeQuery(g, GroupQuery)
 	Log.Debug.Printf("GroupQuery: %s\n", query)

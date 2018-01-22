@@ -1,7 +1,6 @@
 package tag_api
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -37,7 +36,7 @@ func HandleAuthenticate(w http.ResponseWriter, r *http.Request, _ httprouter.Par
 
 	auth := r.Header.Get("Authorization")
 	if len(auth) == 0 || !strings.Contains(auth, "Bearer") {
-		HandleError(w, http.StatusBadRequest, "Invalid authentication: "+auth)
+		HandleError(w, http.StatusBadRequest, r.RequestURI, "Invalid authentication: "+auth)
 		return
 	}
 
@@ -45,7 +44,7 @@ func HandleAuthenticate(w http.ResponseWriter, r *http.Request, _ httprouter.Par
 	token := strings.TrimSpace(strings.Replace(auth, "Bearer", "", 1))
 	payload, headers, err := jose.Decode(token, JwtKey)
 	if err != nil {
-		HandleError(w, http.StatusBadRequest, err.Error())
+		HandleError(w, http.StatusBadRequest, r.RequestURI, err.Error())
 		return
 	}
 
@@ -54,7 +53,7 @@ func HandleAuthenticate(w http.ResponseWriter, r *http.Request, _ httprouter.Par
 
 	// Make sure payload is JSON
 	if len(payload) == 0 || payload[0] != '{' {
-		HandleError(w, http.StatusBadRequest, "Payload decryption failed")
+		HandleError(w, http.StatusBadRequest, r.RequestURI, "Payload decryption failed")
 		return
 	}
 
@@ -63,19 +62,19 @@ func HandleAuthenticate(w http.ResponseWriter, r *http.Request, _ httprouter.Par
 	pl := JwtPayload{}
 	err = json.Unmarshal([]byte(payload), &pl)
 	if err != nil {
-		HandleError(w, http.StatusBadRequest, err.Error())
+		HandleError(w, http.StatusBadRequest, r.RequestURI, err.Error())
 		return
 	}
 
 	// Lookup user by id
 	u, err = d.UserFind(pl)
 	if err != nil {
-		HandleError(w, http.StatusBadRequest, err.Error())
+		HandleError(w, http.StatusBadRequest, r.RequestURI, err.Error())
 		return
 	}
 	b, err = json.Marshal(u)
 	if err != nil {
-		HandleError(w, http.StatusInternalServerError, err.Error())
+		HandleError(w, http.StatusInternalServerError, r.RequestURI, err.Error())
 		return
 	}
 
@@ -85,12 +84,12 @@ func HandleAuthenticate(w http.ResponseWriter, r *http.Request, _ httprouter.Par
 	session := d.SessionManager.Load(r)
 	err = session.PutString(w, "gid", gid)
 	if err != nil {
-		HandleError(w, http.StatusInternalServerError, err.Error())
+		HandleError(w, http.StatusInternalServerError, r.RequestURI, err.Error())
 		return
 	}
 	err = session.PutBytes(w, "json", b)
 	if err != nil {
-		HandleError(w, http.StatusInternalServerError, err.Error())
+		HandleError(w, http.StatusInternalServerError, r.RequestURI, err.Error())
 		return
 	}
 
@@ -109,6 +108,7 @@ func GetGroupIdFromSession(r *http.Request) (group_id int64, err error) {
 	gid, err = session.GetString("gid")
 	if len(gid) == 0 {
 		err = fmt.Errorf("Session not authenticated")
+		return
 	}
 	group_id, err = strconv.ParseInt(gid, 10, 64)
 	return
@@ -134,8 +134,7 @@ func GetUserFromSession(r *http.Request) (u User, err error) {
 // Data Interfaces
 
 func (data *ApiData) UserFind(pl JwtPayload) (u User, err error) {
-	var query string
-	u = User{}
+	var ok bool
 
 	// Validate payload
 	if pl.UserId == 0 {
@@ -148,15 +147,10 @@ func (data *ApiData) UserFind(pl JwtPayload) (u User, err error) {
 	}
 
 	// Lookup user
-	query = data.MakeQuery(u, UserQuery, pl.UserId)
-	Log.Debug.Printf("Query: %s\n", query)
-
-	err = data.Db.QueryRowx(query).StructScan(&u)
-	if err == sql.ErrNoRows {
+	u, ok = data.UserMap[pl.UserId]
+	if !ok {
 		// No match, UserId not valid
 		err = fmt.Errorf("UserId %d not valid", pl.UserId)
-	}
-	if err != nil {
 		return
 	}
 

@@ -31,11 +31,12 @@ func main() {
 	}
 	tag_api.NewLog(level, data.Logfile)
 
-	tag_api.Log.Info.Printf("-------- API Server [Version %s-%s Build %s %s] --------",
-		GitBranch, GitCommit, GitState, BuildDate)
+	name := "Authenticate"
+	tag_api.Log.Info.Printf("-------- %s API Server [Version %s-%s Build %s %s] --------",
+		name, GitBranch, GitCommit, GitState, BuildDate)
 
 	// Initialize HTTP router
-	data.Router = tag_api.NewRouter()
+	data.Router = tag_api.NewAuthRouter()
 
 	// Connect SQL DB
 	err = data.ConnectDB()
@@ -44,8 +45,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	data.AutoLoad()
+	// Load users
+	data.LoadUsers()
 
-	data.StartServer()
+	data.StartServer(":8081", name)
 	os.Exit(0)
 }

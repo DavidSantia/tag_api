@@ -19,7 +19,7 @@ type User struct {
 }
 
 const UserQuery = "FROM users u " +
-	"WHERE u.id = %d"
+	"WHERE u.status IS NOT NULL"
 
 // Image data
 

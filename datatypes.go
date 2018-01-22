@@ -2,16 +2,12 @@ package tag_api
 
 import (
 	"github.com/alexedwards/scs"
-	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
 	"github.com/julienschmidt/httprouter"
 )
 
 func NewData() (data *ApiData) {
-	data = &ApiData{
-		GroupMap: make(GroupMap),
-		ImageMap: make(ImageMap),
-	}
+	data = &ApiData{}
 	data.InitSessions()
 	d = data
 	return
@@ -23,11 +19,13 @@ type ApiData struct {
 	Logfile        string
 	Router         *httprouter.Router
 	Db             *sqlx.DB
-	Redis          redis.Conn
+	UserMap        UserMap
 	GroupMap       GroupMap
 	ImageMap       ImageMap
 	SessionManager *scs.Manager
 }
+
+type UserMap map[int64]User
 
 type GroupMap map[int64]Group
 

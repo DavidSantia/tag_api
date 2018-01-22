@@ -18,6 +18,8 @@ func (data *ApiData) LoadImages() {
 	var i Image
 	var rows *sqlx.Rows
 
+	data.ImageMap = make(ImageMap)
+
 	// Load images
 	query = data.MakeQuery(i, ImageQuery)
 	Log.Debug.Printf("ImageQuery: %s\n", query)
@@ -45,7 +47,7 @@ func HandleAllImages(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 
 	group_id, err := GetGroupIdFromSession(r)
 	if err != nil {
-		HandleError(w, http.StatusUnauthorized, err.Error())
+		HandleError(w, http.StatusUnauthorized, r.RequestURI, err.Error())
 		return
 	}
 
@@ -53,7 +55,7 @@ func HandleAllImages(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 	g, ok := d.GroupMap[group_id]
 	if !ok {
 		err = fmt.Errorf("GroupId %s not valid", group_id)
-		HandleError(w, http.StatusUnauthorized, err.Error())
+		HandleError(w, http.StatusUnauthorized, r.RequestURI, err.Error())
 		return
 	}
 
@@ -61,7 +63,7 @@ func HandleAllImages(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 	for image_id := range g.ImagesGroupsMap {
 		i, err = d.FindImage(image_id, group_id)
 		if err != nil {
-			HandleError(w, http.StatusInternalServerError, err.Error())
+			HandleError(w, http.StatusInternalServerError, r.RequestURI, err.Error())
 			return
 		}
 		is = append(is, i)
@@ -69,7 +71,7 @@ func HandleAllImages(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 
 	b, err := json.Marshal(is)
 	if err != nil {
-		HandleError(w, http.StatusInternalServerError, err.Error())
+		HandleError(w, http.StatusInternalServerError, r.RequestURI, err.Error())
 		return
 	}
 
@@ -82,27 +84,27 @@ func HandleImage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	group_id, err := GetGroupIdFromSession(r)
 	if err != nil {
-		HandleError(w, http.StatusUnauthorized, err.Error())
+		HandleError(w, http.StatusUnauthorized, r.RequestURI, err.Error())
 		return
 	}
 
 	iid := ps.ByName("Id")
 	image_id, err = strconv.ParseInt(iid, 10, 64)
 	if err != nil {
-		HandleError(w, http.StatusBadRequest, err.Error())
+		HandleError(w, http.StatusBadRequest, r.RequestURI, err.Error())
 		return
 	}
 
 	i, err = d.FindImage(image_id, group_id)
 	if err != nil {
-		HandleError(w, http.StatusBadRequest, err.Error())
+		HandleError(w, http.StatusBadRequest, r.RequestURI, err.Error())
 		return
 	}
 
 	var b []byte
 	b, err = json.Marshal(i)
 	if err != nil {
-		HandleError(w, http.StatusInternalServerError, err.Error())
+		HandleError(w, http.StatusInternalServerError, r.RequestURI, err.Error())
 		return
 	}
 
@@ -135,43 +137,5 @@ func (data *ApiData) FindImage(image_id, group_id int64) (i Image, err error) {
 	}
 
 	i, _ = data.ImageMap[image_id]
-	return
-}
-
-func (data *ApiData) CreateImage(i Image) (err error) {
-	var reply interface{}
-
-	// Store in local Map
-	data.ImageMap[i.Id] = i
-	tag := fmt.Sprintf("m:%d", i.Id)
-
-	// Save JSON blob to Redis
-	b, err := json.Marshal(i)
-	reply, err = data.Redis.Do("SET", tag, string(b))
-	if err != nil {
-		return
-	}
-
-	Log.Debug.Printf("SET %s %s\n", tag, reply)
-	return
-}
-
-func (data *ApiData) DeleteImage(id int64) {
-
-	// Store in local Map
-	delete(data.ImageMap, id)
-	tag := fmt.Sprintf("m:%d", id)
-
-	// Delete in Redis
-	reply, err := data.Redis.Do("DEL", tag)
-	if err != nil {
-		return
-	}
-	if reply.(int) != 1 {
-		err = fmt.Errorf("DEL %s failed: %s", tag, reply)
-		return
-	}
-
-	Log.Debug.Printf("DEL %s %s\n", tag, reply)
 	return
 }

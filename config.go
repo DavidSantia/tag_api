@@ -4,7 +4,7 @@ package tag_api
 const (
 	// MySQL DB info
 	DbHost = "localhost"
-	DbPort = "6603"
+	DbPort = "3306"
 	DbUser = "demo"
 	DbPass = "welcome1"
 	DbName = "tagdemo"

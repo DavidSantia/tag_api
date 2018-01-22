@@ -24,17 +24,18 @@ go get "github.com/ahmetb/govvv"
 
 Build the database container as follows
 ```sh
+cd run-docker
 docker build -t tagdemo ./data
 ```
 
 Start the MySQL container as follows:
 ```sh
-docker run --name tag_api_db --rm -p 6603:3306 tagdemo
+docker run --name tagdemo-mysql --rm -p 3306:3306 tagdemo/mysql
 ```
-As shown above, we are mapping the MySQL default port 3306 from the container, to 6603 on localhost.
+As shown above, we are mapping the MySQL default port 3306 from the container, to 3306 on localhost.
 
-* Port 6603 does not conflict with any local installations of MySQL server on the default port
-* If you want to specify a different port on the docker run command, also edit **DbPort** in [config.go](https://github.com/DavidSantia/tag_api/blob/master/config.go)
+* If this conflicts with a local installations of MySQL server, specify a different port
+* If you change the port on the docker run command, also edit **DbPort** in [config.go](https://github.com/DavidSantia/tag_api/blob/master/config.go)
 
 The database will be ready after you see the message:
 ```
@@ -50,18 +51,30 @@ docker kill tag_api_db
 
 Build the API server as follows
 ```sh
-cd api
+cd api-server
 govvv build
 ```
 
-Use `./api -help` to get command-line usage
+Use `./api-server -help` to get command-line usage
 ```
-Usage of ./api:
+Usage of ./api-server:
   -debug
     	Debug logging
   -log string
     	Specify logging filename
 ```
+
+## Running in Docker
+The *build.sh* script compiles using the Go docker image.
+```sh
+cd run-docker
+./build.sh
+```
+This prepares *api-server.tar* to install on a container.  It then runs `docker-compose -build` to make the database and api-server docker images.
+```sh
+docker-compose up
+```
+This starts the database and api-server containers.
 
 ## How it works
 
@@ -93,7 +106,7 @@ The **sql** tag is useful when
 * using joined statements with otherwise ambiguous field names
 * you want to insert an IFNULL or other logic
 
-Use `./api -debug` to debug the SQL queries that are being auto-generated from the struct tags.
+Use `./api-server -debug` to debug the SQL queries that are being auto-generated from the struct tags.
 ```
 DEBUG: 2017/08/26 14:07:03 Select "id" for field: Id [int64]
 DEBUG: 2017/08/26 14:07:03 Select "width" for field: Width [int64]

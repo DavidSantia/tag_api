@@ -15,13 +15,13 @@ func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 var d *ApiData
 
-func HandleError(w http.ResponseWriter, status int, message string) {
+func HandleError(w http.ResponseWriter, status int, uri, message string) {
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(status)
 
 	status_txt := http.StatusText(status)
-	Log.Error.Printf("%s: %s\n", status_txt, message)
+	Log.Error.Printf("%q %s: %s\n", uri, status_txt, message)
 	eResp := ErrorResponse{
 		Error:  message,
 		Status: status_txt,
