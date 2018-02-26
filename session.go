@@ -73,21 +73,11 @@ func HandleAuthenticate(w http.ResponseWriter, r *http.Request, _ httprouter.Par
 	}
 
 	// Send message to content server
-	uMsg := UserMessage{
-		Command:   "adduser",
-		Id:        u.Id,
-		GroupId:   u.GroupId,
-		Guid:      u.Guid,
-		FirstName: u.FirstName,
-		LastName:  u.LastName,
-	}
-	b, err = json.Marshal(uMsg)
+	err = d.MessageAddUser(u)
 	if err != nil {
 		HandleError(w, http.StatusInternalServerError, r.RequestURI, err)
 		return
 	}
-	d.Nconn.Publish("users", b)
-	Log.Info.Printf("Authenticate: %s %s [id=%d]\n", u.FirstName, u.LastName, u.Id)
 
 	// Store user data in session
 	session := d.SessionManager.Load(r)
@@ -103,6 +93,11 @@ func HandleAuthenticate(w http.ResponseWriter, r *http.Request, _ httprouter.Par
 	}
 
 	// Reply
+	b, err = json.Marshal(u)
+	if err != nil {
+		HandleError(w, http.StatusInternalServerError, r.RequestURI, err)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	HandleReply(w, http.StatusOK, string(b)+"\n")
 }

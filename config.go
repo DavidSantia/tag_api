@@ -14,6 +14,7 @@ const (
 
 	// NATS server
 	NATSUrl = "nats://tagdemo-nats:4222"
+	NATSSub = "update"
 )
 
 // 16-byte JSON Web Token encryption key
