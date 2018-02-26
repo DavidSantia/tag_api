@@ -4,10 +4,13 @@ import (
 	"github.com/alexedwards/scs"
 	"github.com/jmoiron/sqlx"
 	"github.com/julienschmidt/httprouter"
+	"github.com/nats-io/go-nats"
 )
 
 func NewData() (data *ApiData) {
-	data = &ApiData{}
+	data = &ApiData{
+		UserMap: make(UserMap),
+	}
 	data.InitSessions()
 	d = data
 	return
@@ -17,8 +20,11 @@ func NewData() (data *ApiData) {
 type ApiData struct {
 	Debug          bool
 	Logfile        string
-	Router         *httprouter.Router
+	DbHost         string
+	DbPort         string
 	Db             *sqlx.DB
+	Nconn          *nats.Conn
+	Router         *httprouter.Router
 	UserMap        UserMap
 	GroupMap       GroupMap
 	ImageMap       ImageMap
@@ -38,11 +44,11 @@ type JwtPayload struct {
 	Guid   string `json:"guid"`
 }
 
-type ErrorResponse struct {
-	Error  string `json:"error"`
-	Status string `json:"status"`
+type ResponseMessage struct {
+	Message string `json:"message"`
+	Status  string `json:"status"`
 }
 
-type StatusResponse struct {
-	Status string `json:"status"`
+type QueueMessage struct {
+	Command string `json:"command"`
 }

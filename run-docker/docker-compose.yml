@@ -16,6 +16,7 @@ services:
     depends_on:
       - tagdemo-db
       - tagdemo-auth
+      - tagdemo-nats
   
   tagdemo-auth:
     image: tagdemo/auth-server
@@ -25,5 +26,11 @@ services:
      - "127.0.0.1:8081:8081"
     depends_on:
       - tagdemo-db
+      - tagdemo-nats
 
+  tagdemo-nats:
+    image: nats
+    container_name: nats-server
+    ports:
+     - "127.0.0.1:4222:4222"
   

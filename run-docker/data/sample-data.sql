@@ -4,10 +4,10 @@ SET NAMES utf8;
 -- Sample data for groups
 --
 
-INSERT INTO groups(name) VALUES
-("Trial"),
-("Basic"),
-("Premium");
+INSERT INTO groups(name, sess_seconds) VALUES
+("Trial", 3600),
+("Basic", 7200),
+("Premium", 7200);
 
 --
 -- Sample data for images

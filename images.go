@@ -47,7 +47,7 @@ func HandleAllImages(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 
 	group_id, err := GetGroupIdFromSession(r)
 	if err != nil {
-		HandleError(w, http.StatusUnauthorized, r.RequestURI, err.Error())
+		HandleError(w, http.StatusUnauthorized, r.RequestURI, err)
 		return
 	}
 
@@ -55,7 +55,7 @@ func HandleAllImages(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 	g, ok := d.GroupMap[group_id]
 	if !ok {
 		err = fmt.Errorf("GroupId %s not valid", group_id)
-		HandleError(w, http.StatusUnauthorized, r.RequestURI, err.Error())
+		HandleError(w, http.StatusUnauthorized, r.RequestURI, err)
 		return
 	}
 
@@ -63,7 +63,7 @@ func HandleAllImages(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 	for image_id := range g.ImagesGroupsMap {
 		i, err = d.FindImage(image_id, group_id)
 		if err != nil {
-			HandleError(w, http.StatusInternalServerError, r.RequestURI, err.Error())
+			HandleError(w, http.StatusInternalServerError, r.RequestURI, err)
 			return
 		}
 		is = append(is, i)
@@ -71,7 +71,7 @@ func HandleAllImages(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 
 	b, err := json.Marshal(is)
 	if err != nil {
-		HandleError(w, http.StatusInternalServerError, r.RequestURI, err.Error())
+		HandleError(w, http.StatusInternalServerError, r.RequestURI, err)
 		return
 	}
 
@@ -84,27 +84,27 @@ func HandleImage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	group_id, err := GetGroupIdFromSession(r)
 	if err != nil {
-		HandleError(w, http.StatusUnauthorized, r.RequestURI, err.Error())
+		HandleError(w, http.StatusUnauthorized, r.RequestURI, err)
 		return
 	}
 
 	iid := ps.ByName("Id")
 	image_id, err = strconv.ParseInt(iid, 10, 64)
 	if err != nil {
-		HandleError(w, http.StatusBadRequest, r.RequestURI, err.Error())
+		HandleError(w, http.StatusBadRequest, r.RequestURI, err)
 		return
 	}
 
 	i, err = d.FindImage(image_id, group_id)
 	if err != nil {
-		HandleError(w, http.StatusBadRequest, r.RequestURI, err.Error())
+		HandleError(w, http.StatusBadRequest, r.RequestURI, err)
 		return
 	}
 
 	var b []byte
 	b, err = json.Marshal(i)
 	if err != nil {
-		HandleError(w, http.StatusInternalServerError, r.RequestURI, err.Error())
+		HandleError(w, http.StatusInternalServerError, r.RequestURI, err)
 		return
 	}
 
@@ -134,6 +134,7 @@ func (data *ApiData) FindImage(image_id, group_id int64) (i Image, err error) {
 	// See if group has this image
 	if !g.ImagesGroupsMap[image_id] {
 		err = fmt.Errorf("ImageId %d not valid for GroupId %d", image_id, group_id)
+		return
 	}
 
 	i, _ = data.ImageMap[image_id]

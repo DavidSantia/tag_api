@@ -16,9 +16,7 @@ func (data *ApiData) LoadUsers() {
 	var u User
 	var rows *sqlx.Rows
 
-	data.UserMap = make(UserMap)
-
-	// Load images
+	// Load users
 	query = data.MakeQuery(u, UserQuery)
 	Log.Debug.Printf("UserQuery: %s\n", query)
 	rows, err = data.Db.Queryx(query)
@@ -37,20 +35,34 @@ func (data *ApiData) LoadUsers() {
 	Log.Info.Printf("Load Users: %d entries total\n", len(data.UserMap))
 }
 
+func (data *ApiData) AddUser(msg []byte) (err error) {
+	var u User
+
+	// Add user
+	err = json.Unmarshal(msg, &u)
+	if err != nil {
+		return
+	}
+	data.UserMap[u.Id] = u
+
+	Log.Info.Printf("Add User: %s %s [id=%d]\n", u.FirstName, u.LastName, u.Id)
+	return
+}
+
 // HTTP Handlers
 
 func HandleUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	u, err := GetUserFromSession(r)
 	if err != nil {
-		HandleError(w, http.StatusUnauthorized, r.RequestURI, err.Error())
+		HandleError(w, http.StatusUnauthorized, r.RequestURI, err)
 		return
 	}
 
 	var b []byte
 	b, err = json.Marshal(u)
 	if err != nil {
-		HandleError(w, http.StatusInternalServerError, r.RequestURI, err.Error())
+		HandleError(w, http.StatusInternalServerError, r.RequestURI, err)
 		return
 	}
 

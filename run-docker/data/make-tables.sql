@@ -5,6 +5,7 @@
 CREATE TABLE IF NOT EXISTS groups (
   id int(11) NOT NULL AUTO_INCREMENT,
   name varchar(50) DEFAULT NULL,
+  sess_seconds int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) DEFAULT CHARSET utf8;
 

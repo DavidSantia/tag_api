@@ -1,5 +1,5 @@
 FROM scratch
 
-ADD api-server.tar /
+ADD content-server.tar /
 
-ENTRYPOINT ["/api-server"]
+ENTRYPOINT ["/content-server", "-dbhost", "tagdemo-db"]
