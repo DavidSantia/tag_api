@@ -2,12 +2,19 @@ package tag_api
 
 // Folders and credentials
 const (
+	// Retries to wait for docker DB instance
+	DbConnectRetries = 5
+
 	// MySQL DB info
 	DbHost = "localhost"
-	DbPort = "6603"
+	DbPort = "3306"
 	DbUser = "demo"
 	DbPass = "welcome1"
 	DbName = "tagdemo"
+
+	// NATS server
+	NATSUrl = "nats://tagdemo-nats:4222"
+	NATSSub = "update"
 )
 
 // 16-byte JSON Web Token encryption key

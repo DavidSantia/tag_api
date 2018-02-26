@@ -1,0 +1,36 @@
+version: '2.2'
+services:
+  tagdemo-db:
+    image: tagdemo/mysql
+    container_name: tagdemo-mysql
+    build: ./data
+    expose:
+     - "3306"
+
+  tagdemo-content:
+    image: tagdemo/content-server
+    container_name: content-server
+    build: ./content-server
+    ports:
+     - "127.0.0.1:8080:8080"
+    depends_on:
+      - tagdemo-db
+      - tagdemo-auth
+      - tagdemo-nats
+  
+  tagdemo-auth:
+    image: tagdemo/auth-server
+    container_name: auth-server
+    build: ./auth-server
+    ports:
+     - "127.0.0.1:8081:8081"
+    depends_on:
+      - tagdemo-db
+      - tagdemo-nats
+
+  tagdemo-nats:
+    image: nats
+    container_name: nats-server
+    ports:
+     - "127.0.0.1:4222:4222"
+  

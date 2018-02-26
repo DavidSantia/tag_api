@@ -6,18 +6,6 @@ import (
 	"strings"
 )
 
-func (data *ApiData) AutoLoad() {
-
-	// Load images
-	data.LoadImages()
-
-	// Load groups
-	data.LoadGroups()
-
-	// Load map of images for each group
-	data.LoadImagesGroups()
-}
-
 // Helper functions
 
 func (data *ApiData) MakeSelect(dt interface{}) (sel string) {

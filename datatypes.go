@@ -2,15 +2,14 @@ package tag_api
 
 import (
 	"github.com/alexedwards/scs"
-	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
 	"github.com/julienschmidt/httprouter"
+	"github.com/nats-io/go-nats"
 )
 
 func NewData() (data *ApiData) {
 	data = &ApiData{
-		GroupMap: make(GroupMap),
-		ImageMap: make(ImageMap),
+		UserMap: make(UserMap),
 	}
 	data.InitSessions()
 	d = data
@@ -21,13 +20,18 @@ func NewData() (data *ApiData) {
 type ApiData struct {
 	Debug          bool
 	Logfile        string
-	Router         *httprouter.Router
+	DbHost         string
+	DbPort         string
 	Db             *sqlx.DB
-	Redis          redis.Conn
+	Nconn          *nats.Conn
+	Router         *httprouter.Router
+	UserMap        UserMap
 	GroupMap       GroupMap
 	ImageMap       ImageMap
 	SessionManager *scs.Manager
 }
+
+type UserMap map[int64]User
 
 type GroupMap map[int64]Group
 
@@ -40,11 +44,11 @@ type JwtPayload struct {
 	Guid   string `json:"guid"`
 }
 
-type ErrorResponse struct {
-	Error  string `json:"error"`
-	Status string `json:"status"`
+type ResponseMessage struct {
+	Message string `json:"message"`
+	Status  string `json:"status"`
 }
 
-type StatusResponse struct {
-	Status string `json:"status"`
+type QueueMessage struct {
+	Command string `json:"command"`
 }
