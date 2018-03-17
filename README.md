@@ -49,15 +49,25 @@ docker kill tag_api_db
 
 ## API Server Setup
 
-Build the API server as follows
+Build the Auth server as follows
 ```sh
-cd api-server
+cd auth-server
 govvv build
 ```
 
-Use `./api-server -help` to get command-line usage
+Build the Content server as follows
+```sh
+cd ../content-server
+govvv build
 ```
-Usage of ./api-server:
+
+Use `-help` to get command-line usage
+```
+Usage of ./content-server:
+  -dbhost string
+    	Specify DB host (default "localhost")
+  -dbport string
+    	Specify DB port (default "3306")
   -debug
     	Debug logging
   -log string
@@ -70,11 +80,11 @@ The *build.sh* script compiles using the Go docker image.
 cd run-docker
 ./build.sh
 ```
-This prepares *api-server.tar* to install on a container.  It then runs `docker-compose -build` to make the database and api-server docker images.
+This prepares *auth-server.tar* and *content-server.tar* to install on containers.  It then runs `docker-compose -build` to make the database, auth-server and content-server docker images.
 ```sh
 docker-compose up
 ```
-This starts the database and api-server containers.
+This starts the database, nats server, auth-server and content-server containers.
 
 ## How it works
 
@@ -106,7 +116,7 @@ The **sql** tag is useful when
 * using joined statements with otherwise ambiguous field names
 * you want to insert an IFNULL or other logic
 
-Use `./api-server -debug` to debug the SQL queries that are being auto-generated from the struct tags.
+Use `./content-server -debug` to debug the SQL queries that are being auto-generated from the struct tags.
 ```
 DEBUG: 2017/08/26 14:07:03 Select "id" for field: Id [int64]
 DEBUG: 2017/08/26 14:07:03 Select "width" for field: Width [int64]
@@ -164,18 +174,25 @@ for rows.Next() {
 }
 ```
 ### Accessing the API
-Once you have the API server up and running, you can use your browser to authenticate, and access data.
+Once you have the API server up and running, use your browser to authenticate and access data.
 
-The following endpoints are defined:
+#### Auth server endpoints (localhost:8081)
 ```go
+router.Handle("GET", "/", AuthIndex)
 router.Handle("GET", "/authenticate", HandleAuthTester)
 router.Handle("POST", "/authenticate", HandleAuthenticate)
+router.Handle("GET", "/keepalive", HandleAuthKeepAlive)
+```
+
+#### Content server endpoints (localhost:8080)
+```go
+router.Handle("GET", "/", ContentIndex)
 router.Handle("GET", "/image", HandleAllImages)
 router.Handle("GET", "/image/:Id", HandleImage)
 router.Handle("GET", "/user", HandleUser)
 ```
 
-By browsing to [localhost:8080/authenticate](http://localhost:8080/authenticate), you will see a test framework with two buttons.
+By browsing to [localhost:8081/authenticate](http://localhost:8081/authenticate), you will see a test framework with two buttons.
 ![Figure 1: Architecture](https://raw.githubusercontent.com/DavidSantia/tag_api/master/README-2buttons.png)
 
 Each button authenticates you as a particular user from the sample database, either in the Basic or Premium group. Once authenticated, your browser will have a Session cookie to allow you to continue using the API.
