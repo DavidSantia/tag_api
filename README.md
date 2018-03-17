@@ -84,7 +84,7 @@ This prepares *auth-server.tar* and *content-server.tar* to install on container
 ```sh
 docker-compose up
 ```
-This starts the database, NATS server, auth-server and content-server containers. The NATS server handles communication between the auth and content servers, which allows you to scale up the number of content servers.  This assumes you are configuring a gateway to route traffic to multiple containers, in which case you would have each server (modifying `data.StartServer(":8080", name)`) listen on a port assigned by the container orchestration.
+This starts the database, NATS server, auth-server and content-server containers. The NATS server handles communication between the auth and content servers, which allows you to scale up the number of content servers.  Scaling assumes you are configuring a gateway to route traffic to multiple containers, in which case you would have each server (modifying `data.StartServer(":8080", name)`) listen on a port assigned by the container orchestration.
 
 ## How it works
 
