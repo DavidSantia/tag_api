@@ -12,8 +12,6 @@ func (data *ApiData) LoadGroups() {
 	var g Group
 	var rows *sqlx.Rows
 
-	data.GroupMap = make(GroupMap)
-
 	// Load partner map
 	query = data.MakeQuery(g, GroupQuery)
 	Log.Debug.Printf("GroupQuery: %s\n", query)
@@ -33,7 +31,7 @@ func (data *ApiData) LoadGroups() {
 		}
 		data.GroupMap[g.Id] = g
 	}
-	Log.Info.Printf("Load Partners: %d entries total\n", len(data.GroupMap))
+	Log.Info.Printf("Load Groups: %d entries total\n", len(data.GroupMap))
 }
 
 func (data *ApiData) LoadImagesGroups() {

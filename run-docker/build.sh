@@ -3,6 +3,7 @@
 PROJECT=github.com/DavidSantia/tag_api
 
 # Build for Linux, statically linked
+docker rm content-server auth-server >& /dev/null
 docker rmi tagdemo/content-server tagdemo/auth-server
 
 NAME=content-server

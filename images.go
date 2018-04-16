@@ -5,39 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/julienschmidt/httprouter"
 	"strconv"
 )
-
-// DB loaders
-
-func (data *ApiData) LoadImages() {
-	var err error
-	var query string
-	var i Image
-	var rows *sqlx.Rows
-
-	data.ImageMap = make(ImageMap)
-
-	// Load images
-	query = data.MakeQuery(i, ImageQuery)
-	Log.Debug.Printf("ImageQuery: %s\n", query)
-	rows, err = data.Db.Queryx(query)
-	if err != nil {
-		Log.Error.Printf("Load Images: %v\n", err)
-		return
-	}
-	for rows.Next() {
-		err = rows.StructScan(&i)
-		if err != nil {
-			Log.Error.Printf("Load Images: %v\n", err)
-			continue
-		}
-		data.ImageMap[i.Id] = i
-	}
-	Log.Info.Printf("Load Images: %d entries total\n", len(data.ImageMap))
-}
 
 // HTTP Handlers
 

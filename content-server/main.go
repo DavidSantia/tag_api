@@ -44,6 +44,22 @@ func main() {
 		tag_api.Log.Error.Println(err)
 		os.Exit(1)
 	}
+	defer data.Db.Close()
+
+	// Connect Bolt DB
+	err = data.ConnectBolt()
+	if err != nil {
+		tag_api.Log.Error.Println(err)
+		os.Exit(1)
+	}
+	defer data.BoltDb.Close()
+
+	// Update images, groups, image-group map in Bolt
+	data.UpdateImages()
+	data.UpdateGroups()
+	data.LoadImagesGroups()
+
+
 
 	// Load images
 	data.LoadImages()
