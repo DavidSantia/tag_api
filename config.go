@@ -2,6 +2,9 @@ package tag_api
 
 // Folders and credentials
 const (
+	// Bolt DB file
+	BoltDB = "./content.db"
+
 	// Retries to wait for docker DB instance
 	DbConnectRetries = 5
 

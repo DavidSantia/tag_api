@@ -44,15 +44,34 @@ func main() {
 		tag_api.Log.Error.Println(err)
 		os.Exit(1)
 	}
+	defer data.Db.Close()
+
+	// Connect Bolt DB
+	err = data.ConnectBolt()
+	if err != nil {
+		tag_api.Log.Error.Println(err)
+		os.Exit(1)
+	}
+	defer data.BoltDb.Close()
 
 	// Load images
 	data.LoadImages()
+
+	// Store images
+	data.StoreImages()
 
 	// Load groups
 	data.LoadGroups()
 
 	// Load map of images for each group
 	data.LoadImagesGroups()
+
+	// Store groups
+	data.StoreGroups()
+
+	// Refresh groups and images
+	data.RefreshImages()
+	data.RefreshGroups()
 
 	data.StartServer(":8080", name)
 	os.Exit(0)

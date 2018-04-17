@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/boltdb/bolt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 )
@@ -28,9 +29,21 @@ func (data *ApiData) ConnectDB() (err error) {
 				Log.Info.Printf("Retry connection #%d", i+1)
 				continue
 			}
-			return err
+			return
 		}
 	}
+
+	return
+}
+
+func (data *ApiData) ConnectBolt() (err error) {
+	var file string = BoltDB
+
+	Log.Info.Printf("Connecting to %s", file)
+	data.BoltDb, err = bolt.Open(file, 0644, nil)
+
+	// Bucket name
+	data.BoltBucket = []byte("Content")
 
 	return
 }

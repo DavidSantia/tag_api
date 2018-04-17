@@ -2,6 +2,7 @@ package tag_api
 
 import (
 	"github.com/alexedwards/scs"
+	"github.com/boltdb/bolt"
 	"github.com/jmoiron/sqlx"
 	"github.com/julienschmidt/httprouter"
 	"github.com/nats-io/go-nats"
@@ -9,7 +10,9 @@ import (
 
 func NewData() (data *ApiData) {
 	data = &ApiData{
-		UserMap: make(UserMap),
+		UserMap:  make(UserMap),
+		ImageMap: make(ImageMap),
+		GroupMap: make(GroupMap),
 	}
 	data.InitSessions()
 	d = data
@@ -20,6 +23,8 @@ func NewData() (data *ApiData) {
 type ApiData struct {
 	Debug          bool
 	Logfile        string
+	BoltDb         *bolt.DB
+	BoltBucket     []byte
 	DbHost         string
 	DbPort         string
 	Db             *sqlx.DB
