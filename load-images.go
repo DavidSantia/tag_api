@@ -1,50 +1,32 @@
 package tag_api
 
 import (
-	"bytes"
-	"encoding/gob"
-	"fmt"
-
-	"github.com/boltdb/bolt"
+	"github.com/jmoiron/sqlx"
 )
-
-// DB loaders
 
 func (data *ApiData) LoadImages() {
 	var err error
+	var query string
+	var image Image
+	var rows *sqlx.Rows
+
+	data.ImageMap = make(ImageMap)
 
 	// Load images
-	err = data.BoltDb.View(func(tx *bolt.Tx) (e error) {
-		var bucket *bolt.Bucket
-		var v, k []byte
-
-		bucket = tx.Bucket(data.BoltBucket)
-		if bucket == nil {
-			e = fmt.Errorf("Bolt bucket %s not found", data.BoltBucket)
-			return
-		}
-		k = []byte("Images")
-
-		v = bucket.Get(k)
-		if v == nil {
-			e = fmt.Errorf("Bolt key %s not found", k)
-			return
-		}
-
-		b := bytes.NewBuffer(v)
-		dec := gob.NewDecoder(b)
-
-		e = dec.Decode(&data.ImageMap)
-		if e != nil {
-			e = fmt.Errorf("Parse ImageMap gob from Bolt: %v", e)
-			return
-		}
-		return
-	})
-
+	query = data.MakeQuery(image, ImageQuery)
+	Log.Debug.Printf("ImageQuery: %s\n", query)
+	rows, err = data.Db.Queryx(query)
 	if err != nil {
 		Log.Error.Printf("Load Images: %v\n", err)
+		return
 	}
-
-	Log.Info.Printf("Load Images: %d entries loaded from Bolt\n", len(data.ImageMap))
+	for rows.Next() {
+		err = rows.StructScan(&image)
+		if err != nil {
+			Log.Error.Printf("Load Images: %v\n", err)
+			continue
+		}
+		data.ImageMap[image.Id] = image
+	}
+	Log.Info.Printf("Load Images: %d entries total\n", len(data.ImageMap))
 }

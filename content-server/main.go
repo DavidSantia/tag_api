@@ -54,21 +54,24 @@ func main() {
 	}
 	defer data.BoltDb.Close()
 
-	// Update images, groups, image-group map in Bolt
-	data.UpdateImages()
-	data.UpdateGroups()
-	data.LoadImagesGroups()
-
-
-
 	// Load images
 	data.LoadImages()
+
+	// Store images
+	data.StoreImages()
 
 	// Load groups
 	data.LoadGroups()
 
 	// Load map of images for each group
 	data.LoadImagesGroups()
+
+	// Store groups
+	data.StoreGroups()
+
+	// Refresh groups and images
+	data.RefreshImages()
+	data.RefreshGroups()
 
 	data.StartServer(":8080", name)
 	os.Exit(0)
