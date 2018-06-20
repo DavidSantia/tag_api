@@ -54,7 +54,7 @@ func (data *ApiData) StartServer(host, name string) {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	defer data.Nconn.Close()
+	defer data.NConn.Close()
 
 	if name == "Content" {
 		go data.ListenNATSSub()

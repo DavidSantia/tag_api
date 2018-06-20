@@ -16,8 +16,8 @@ const (
 	DbName = "tagdemo"
 
 	// NATS server
-	NATSUrl = "nats://tagdemo-nats:4222"
-	NATSSub = "update"
+	NHost = "nats://localhost:4222"
+	NSub  = "update"
 )
 
 // 16-byte JSON Web Token encryption key

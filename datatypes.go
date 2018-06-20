@@ -28,7 +28,8 @@ type ApiData struct {
 	DbHost         string
 	DbPort         string
 	Db             *sqlx.DB
-	Nconn          *nats.Conn
+	NHost          string
+	NConn          *nats.Conn
 	Router         *httprouter.Router
 	UserMap        UserMap
 	GroupMap       GroupMap

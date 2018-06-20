@@ -8,12 +8,7 @@ if ! [ -d $GOPATH/src/$PROJECT ]; then
 fi
 
 # Clean previous
-echo "## Cleaning images"
-CONTAINERS="`docker ps -a -f ancestor=tagdemo/content-server -f ancestor=tagdemo/auth-server -f ancestor=tagdemo/mysql -q`"
-if [ -n "$CONTAINERS" ]; then
-   docker stop $CONTAINERS
-   docker rm $CONTAINERS
-fi
+$GOPATH/src/$PROJECT/docker/clean.sh
 
 IMAGES="`docker images tagdemo/content-server -q; docker images tagdemo/auth-server -q; docker images tagdemo/mysql -q`"
 if [ -n "$IMAGES" ]; then
