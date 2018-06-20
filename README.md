@@ -24,8 +24,8 @@ go get "github.com/ahmetb/govvv"
 
 Build the database container as follows
 ```sh
-cd run-docker
-docker build -t tagdemo ./data
+cd docker
+docker build -t tagdemo/mysql ./data
 ```
 
 Start the MySQL container as follows:
@@ -77,14 +77,21 @@ Usage of ./content-server:
 ## Running in Docker
 The *build.sh* script compiles using the Go docker image.
 ```sh
-cd run-docker
+cd docker
 ./build.sh
 ```
-This prepares *auth-server.tar* and *content-server.tar* to install on containers.  It then runs `docker-compose -build` to make the database, auth-server and content-server docker images.
+This prepares *auth-server.tar* and *content-server.tar* to install on containers.
+
+Then use docker-compose to build the database, auth-server and content-server images:
+```sh
+docker-compose build
+```
+
+Then start the database, NATS server, auth-server and content-server containers:
 ```sh
 docker-compose up
 ```
-This starts the database, NATS server, auth-server and content-server containers. The NATS server handles communication between the auth and content servers, which allows you to scale up the number of content servers.  Scaling assumes you are configuring a gateway to route traffic to multiple containers, in which case you would have each server (modifying `data.StartServer(":8080", name)`) listen on a port assigned by the container orchestration.
+The NATS server handles communication between the auth and content servers, which allows you to scale up the number of content servers.  Scaling assumes you are configuring a gateway to route traffic to multiple containers, in which case you would have each server (modifying `data.StartServer(":8080", name)`) listen on a port assigned by the container orchestration.
 
 ## How it works
 
