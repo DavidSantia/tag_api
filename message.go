@@ -7,7 +7,8 @@ import (
 )
 
 func (data *ApiData) ConnectNATS() (err error) {
-	data.Nconn, err = nats.Connect(NATSUrl)
+	Log.Info.Printf("Connecting to %s\n", data.NHost)
+	data.NConn, err = nats.Connect(data.NHost)
 	return
 }
 
@@ -15,14 +16,14 @@ func (data *ApiData) ListenNATSSub() {
 	var qMsg QueueMessage
 	ch := make(chan *nats.Msg, 64)
 
-	sub, err := data.Nconn.ChanSubscribe(NATSSub, ch)
+	Log.Info.Printf("Subscribing to nats channel %q\n", NSub)
+	sub, err := data.NConn.ChanSubscribe(NSub, ch)
 	if err != nil {
 		Log.Error.Println(err)
 		return
 	}
 	defer sub.Unsubscribe()
 
-	Log.Info.Printf("Subscribed to %q on %s\n", NATSSub, NATSUrl)
 	for {
 		msg := <-ch
 		err = json.Unmarshal(msg.Data, &qMsg)
@@ -59,7 +60,7 @@ func (data *ApiData) MessageAddUser(u User) (err error) {
 	}
 
 	// Send message to content server
-	err = d.Nconn.Publish(NATSSub, b)
+	err = d.NConn.Publish(NSub, b)
 	Log.Info.Printf("Authenticate: %s %s [id=%d]\n", u.FirstName, u.LastName, u.Id)
 	return
 }

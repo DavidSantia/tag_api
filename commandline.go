@@ -36,6 +36,7 @@ func (data *ApiData) GetCmdLine() (err error) {
 	flag.StringVar(&data.DbHost, "dbhost", DbHost, "Specify DB host")
 	flag.StringVar(&data.DbPort, "dbport", DbPort, "Specify DB port")
 	flag.BoolVar(&data.Debug, "debug", false, "Debug logging")
+	flag.StringVar(&data.NHost, "nhost", NHost, "Specify NATS host")
 
 	// Parse commandline flag arguments
 	flag.Parse()
