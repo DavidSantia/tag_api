@@ -44,14 +44,14 @@ The database will be ready after you see the message:
 
 If you need to stop the MySQL container, use
 ```sh
-docker kill tag_api_db
+docker kill tagdemo-mysql
 ```
 
 ## API Server Setup
 
 Build the Auth server as follows
 ```sh
-cd auth-server
+cd apps/auth-server
 govvv build
 ```
 
