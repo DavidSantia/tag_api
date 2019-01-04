@@ -2,18 +2,8 @@ package tag_api
 
 // Folders and credentials
 const (
-	// Bolt DB file
-	BoltDB = "./content.db"
-
 	// Retries to wait for docker DB instance
 	DbConnectRetries = 5
-
-	// MySQL DB info
-	DbHost = "localhost"
-	DbPort = "3306"
-	DbUser = "demo"
-	DbPass = "welcome1"
-	DbName = "tagdemo"
 
 	// NATS server
 	NHost = "nats://localhost:4222"

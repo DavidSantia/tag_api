@@ -8,11 +8,14 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func NewContentRouter() (router *httprouter.Router) {
+func NewRouter() (router *httprouter.Router) {
 
 	router = httprouter.New()
 
-	router.Handle("GET", "/", ContentIndex)
+	router.Handle("GET", "/", handleIndex)
+	router.Handle("GET", "/authenticate", HandleAuthTester)
+	router.Handle("POST", "/authenticate", HandleAuthenticate)
+	router.Handle("GET", "/keepalive", HandleAuthKeepAlive)
 	router.Handle("GET", "/image", HandleAllImages)
 	router.Handle("GET", "/image/:Id", HandleImage)
 	router.Handle("GET", "/user", HandleUser)
@@ -20,49 +23,32 @@ func NewContentRouter() (router *httprouter.Router) {
 	return
 }
 
-func ContentIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	fmt.Fprint(w, "<b>API Demo Content endpoints</b>")
+func handleIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	fmt.Fprint(w, "<b>API Demo endpoints</b>")
+	fmt.Fprint(w, "<ul><li>GET /authenticate</li>")
+	fmt.Fprint(w, "<li>POST /authenticate</li>")
+	fmt.Fprint(w, "<li>GET /keepalive</li></ul>")
 	fmt.Fprint(w, "<ul><li>GET /image</li>")
 	fmt.Fprint(w, "<li>GET /image/Id</li>")
 	fmt.Fprint(w, "<li>GET /user</li></ul>")
 }
 
-func NewAuthRouter() (router *httprouter.Router) {
-
-	router = httprouter.New()
-
-	router.Handle("GET", "/", AuthIndex)
-	router.Handle("GET", "/authenticate", HandleAuthTester)
-	router.Handle("POST", "/authenticate", HandleAuthenticate)
-	router.Handle("GET", "/keepalive", HandleAuthKeepAlive)
-
-	return
-}
-
-func AuthIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	fmt.Fprint(w, "<b>API Demo authenticate endpoints</b>")
-	fmt.Fprint(w, "<ul><li>GET /authenticate</li>")
-	fmt.Fprint(w, "<li>POST /authenticate</li>")
-	fmt.Fprint(w, "<li>GET /keepalive</li></ul>")
-}
-
-func (data *ApiData) StartServer(host, name string) {
+func (data *ApiData) StartServer(hostApi, portApi, hostNATS, portNATS string) {
 	var err error
 
-	err = data.ConnectNATS()
+	err = data.ConnectNATS(hostNATS, portNATS)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 	defer data.NConn.Close()
 
-	if name == "Content" {
-		go data.ListenNATSSub()
-	}
+	go data.ListenNATSSub()
 
-	Log.Info.Println(name, "API Ready")
+	apiUrl := hostApi + ":" + portApi
 
-	err = http.ListenAndServe(host, data.SessionManager.Use(data.Router))
+	Log.Info.Println("API Ready on " + apiUrl)
+	err = http.ListenAndServe(apiUrl, data.SessionManager.Use(data.Router))
 	fmt.Println(err)
 	os.Exit(1)
 }

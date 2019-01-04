@@ -21,14 +21,9 @@ func NewData() (data *ApiData) {
 
 // Local data - most functions are methods of this
 type ApiData struct {
-	Debug          bool
-	Logfile        string
 	BoltDb         *bolt.DB
 	BoltBucket     []byte
-	DbHost         string
-	DbPort         string
 	Db             *sqlx.DB
-	NHost          string
 	NConn          *nats.Conn
 	Router         *httprouter.Router
 	UserMap        UserMap

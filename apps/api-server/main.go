@@ -15,10 +15,30 @@ var (
 	GitState  string
 )
 
+const (
+	// Bolt DB file
+	BoltDB = "./content.db"
+
+	// Retries to wait for docker DB instance
+	DbConnectRetries = 5
+
+	// MySQL DB info
+	DbUser = "demo"
+	DbPass = "welcome1"
+	DbName = "tagdemo"
+
+	// NATS server
+	NHost = "localhost"
+	NSub  = "update"
+)
+
+
 func main() {
 
 	data := tag_api.NewData()
-	err := data.GetCmdLine()
+	settings := Settings{server: "Api"}
+
+	err := settings.getCmdLine()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -26,20 +46,19 @@ func main() {
 
 	// Initialize log
 	var level tag_api.Level = tag_api.LogINFO
-	if data.Debug {
+	if settings.debug {
 		level = tag_api.LogDEBUG
 	}
-	tag_api.NewLog(level, data.Logfile)
+	tag_api.NewLog(level, settings.logfile)
 
-	name := "Content"
-	tag_api.Log.Info.Printf("-------- %s API Server [Version %s-%s Build %s %s] --------",
-		name, GitBranch, GitCommit, GitState, BuildDate)
+	tag_api.Log.Info.Printf("-------- %s Server [Version %s-%s Build %s %s] --------",
+		settings.server, GitBranch, GitCommit, GitState, BuildDate)
 
 	// Initialize HTTP router
-	data.Router = tag_api.NewContentRouter()
+	data.Router = tag_api.NewRouter()
 
 	// Connect SQL DB
-	err = data.ConnectDB()
+	err = data.ConnectDB(DbUser, DbPass, DbName, settings.hostDb, settings.portDb)
 	if err != nil {
 		tag_api.Log.Error.Println(err)
 		os.Exit(1)
@@ -47,7 +66,7 @@ func main() {
 	defer data.Db.Close()
 
 	// Connect Bolt DB
-	err = data.ConnectBolt()
+	err = data.ConnectBolt(BoltDB)
 	if err != nil {
 		tag_api.Log.Error.Println(err)
 		os.Exit(1)
@@ -73,6 +92,6 @@ func main() {
 	data.RefreshImages()
 	data.RefreshGroups()
 
-	data.StartServer(":8080", name)
+	data.StartServer(settings.hostApi, settings.portApi, settings.hostNATS, settings.portNATS)
 	os.Exit(0)
 }

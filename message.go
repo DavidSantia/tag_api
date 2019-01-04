@@ -6,12 +6,6 @@ import (
 	"github.com/nats-io/go-nats"
 )
 
-func (data *ApiData) ConnectNATS() (err error) {
-	Log.Info.Printf("Connecting to %s\n", data.NHost)
-	data.NConn, err = nats.Connect(data.NHost)
-	return
-}
-
 func (data *ApiData) ListenNATSSub() {
 	var qMsg QueueMessage
 	ch := make(chan *nats.Msg, 64)
