@@ -8,7 +8,7 @@ import (
 
 // Helper functions
 
-func (data *ApiData) MakeSelect(dt interface{}) (sel string) {
+func makeSelect(dt interface{}) (sel string) {
 	var tag, sql_tag string
 	var ok bool
 	var i int
@@ -41,7 +41,7 @@ func (data *ApiData) MakeSelect(dt interface{}) (sel string) {
 	return
 }
 
-func (data *ApiData) MakeQuery(dt interface{}, query string, v ...interface{}) (finalq string) {
+func makeQuery(dt interface{}, query string, v ...interface{}) (finalq string) {
 
 	// pad with a space unless query starts with a ','
 	var pad string = " "
@@ -49,6 +49,6 @@ func (data *ApiData) MakeQuery(dt interface{}, query string, v ...interface{}) (
 		pad = ""
 	}
 
-	finalq = data.MakeSelect(dt) + pad + fmt.Sprintf(query, v...)
+	finalq = makeSelect(dt) + pad + fmt.Sprintf(query, v...)
 	return
 }

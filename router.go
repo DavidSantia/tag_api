@@ -8,18 +8,16 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func NewRouter() (router *httprouter.Router) {
+func (data *ApiData) NewRouter(cs ContentService) (router *httprouter.Router) {
 
-	router = httprouter.New()
-
-	router.Handle("GET", "/", handleIndex)
-	router.Handle("GET", "/authenticate", HandleAuthTester)
-	router.Handle("POST", "/authenticate", HandleAuthenticate)
-	router.Handle("GET", "/keepalive", HandleAuthKeepAlive)
-	router.Handle("GET", "/image", HandleAllImages)
-	router.Handle("GET", "/image/:Id", HandleImage)
-	router.Handle("GET", "/user", HandleUser)
-
+	data.router = httprouter.New()
+	data.router.Handle("GET", "/", handleIndex)
+	data.router.Handle("GET", "/authenticate", handleAuthTestpage)
+	data.router.Handle("POST", "/authenticate", makeHandleAuthenticate(cs))
+	data.router.Handle("GET", "/keepalive", makeHandleAuthKeepAlive(cs))
+	data.router.Handle("GET", "/image", makeHandleAllImages(cs))
+	data.router.Handle("GET", "/image/:Id", makeHandleImage(cs))
+	data.router.Handle("GET", "/user", makeHandleUser(cs))
 	return
 }
 
@@ -33,22 +31,11 @@ func handleIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	fmt.Fprint(w, "<li>GET /user</li></ul>")
 }
 
-func (data *ApiData) StartServer(hostApi, portApi, hostNATS, portNATS string) {
-	var err error
+func (data *ApiData) StartServer() {
 
-	err = data.ConnectNATS(hostNATS, portNATS)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	defer data.NConn.Close()
-
-	go data.ListenNATSSub()
-
-	apiUrl := hostApi + ":" + portApi
-
-	Log.Info.Println("API Ready on " + apiUrl)
-	err = http.ListenAndServe(apiUrl, data.SessionManager.Use(data.Router))
+	Log.Info.Println("API Ready on " + data.apiUrl)
+	err := http.ListenAndServe(data.apiUrl, data.sessionManager.Use(data.router))
 	fmt.Println(err)
 	os.Exit(1)
+	return
 }

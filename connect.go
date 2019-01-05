@@ -11,15 +11,16 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func (data *ApiData) ConnectDB(user, pass, name, host, port string) (err error) {
+func (bs *BoltService) connectDB() (err error) {
 
 	// Set DB connection resource string
-	resource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, pass, host, port, name)
+	resource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", bs.settings.userDb, bs.settings.passDb,
+		bs.settings.hostDb, bs.settings.portDb, bs.settings.nameDb)
 
-	Log.Info.Printf("Connecting to %s on %s", name, host)
+	Log.Info.Printf("Connecting to %s on %s", bs.settings.nameDb, bs.settings.hostDb)
 	// Retry connection if DB still initializing
 	for i := 0; i < DbConnectRetries; i++ {
-		data.Db, err = sqlx.Connect("mysql", resource)
+		bs.db, err = sqlx.Connect("mysql", resource)
 		if err != nil {
 			if strings.Contains(err.Error(), "connection refused") {
 				time.Sleep(10 * time.Second)
@@ -32,21 +33,18 @@ func (data *ApiData) ConnectDB(user, pass, name, host, port string) (err error) 
 	return
 }
 
-func (data *ApiData) ConnectBolt(file string) (err error) {
+func (bs *BoltService) connectBolt() (err error) {
 
-	Log.Info.Printf("Connecting to %s", file)
-	data.BoltDb, err = bolt.Open(file, 0644, nil)
-
-	// Bucket name
-	data.BoltBucket = []byte("Content")
+	Log.Info.Printf("Connecting to %s", bs.settings.boltFile)
+	bs.boltDb, err = bolt.Open(bs.settings.boltFile, 0644, nil)
 	return
 }
 
-func (data *ApiData) ConnectNATS(host, port string) (err error) {
+func (bs *BoltService) ConnectNATS() (err error) {
 
-	natsUrl := "nats://" + host + ":" + port
+	natsUrl := "nats://" + bs.settings.hostNATS + ":" + bs.settings.portNATS
 
 	Log.Info.Printf("Connecting to %s", natsUrl)
-	data.NConn, err = nats.Connect(natsUrl)
+	bs.nconn, err = nats.Connect(natsUrl)
 	return
 }

@@ -2,34 +2,21 @@ package tag_api
 
 import (
 	"github.com/alexedwards/scs"
-	"github.com/boltdb/bolt"
-	"github.com/jmoiron/sqlx"
 	"github.com/julienschmidt/httprouter"
-	"github.com/nats-io/go-nats"
 )
 
-func NewData() (data *ApiData) {
-	data = &ApiData{
-		UserMap:  make(UserMap),
-		ImageMap: make(ImageMap),
-		GroupMap: make(GroupMap),
-	}
+func NewData(host, port string) (data *ApiData) {
+
+	data = &ApiData{apiUrl: host + ":" + port}
 	data.InitSessions()
-	d = data
 	return
 }
 
 // Local data - most functions are methods of this
 type ApiData struct {
-	BoltDb         *bolt.DB
-	BoltBucket     []byte
-	Db             *sqlx.DB
-	NConn          *nats.Conn
-	Router         *httprouter.Router
-	UserMap        UserMap
-	GroupMap       GroupMap
-	ImageMap       ImageMap
-	SessionManager *scs.Manager
+	apiUrl         string
+	router         *httprouter.Router
+	sessionManager *scs.Manager
 }
 
 type UserMap map[int64]User

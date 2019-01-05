@@ -16,7 +16,7 @@ var (
 )
 
 const (
-	// Bolt DB file
+	// Default Bolt DB file
 	BoltDB = "./content.db"
 
 	// Retries to wait for docker DB instance
@@ -28,14 +28,11 @@ const (
 	DbName = "tagdemo"
 
 	// NATS server
-	NHost = "localhost"
-	NSub  = "update"
+	NSub = "update"
 )
-
 
 func main() {
 
-	data := tag_api.NewData()
 	settings := Settings{server: "Api"}
 
 	err := settings.getCmdLine()
@@ -43,55 +40,39 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+	data := tag_api.NewData(settings.hostApi, settings.portApi)
 
 	// Initialize log
 	var level tag_api.Level = tag_api.LogINFO
 	if settings.debug {
 		level = tag_api.LogDEBUG
 	}
-	tag_api.NewLog(level, settings.logfile)
+	tag_api.NewLog(level, settings.logFile)
 
 	tag_api.Log.Info.Printf("-------- %s Server [Version %s-%s Build %s %s] --------",
 		settings.server, GitBranch, GitCommit, GitState, BuildDate)
 
+	// Initialize content service
+	cs := tag_api.NewContentService(settings.boltFile, DbName)
+
+	// Configure Db
+	cs.ConfigureDB(DbUser, DbPass, DbName, settings.hostDb, settings.portDb)
+	defer cs.CloseDB()
+
+	// Configure NATS
+	cs.ConfigureNATS(settings.hostNATS, settings.portNATS, NSub)
+	err = cs.ConnectNATS()
+	if err != nil {
+		return
+	}
+	defer cs.CloseNATS()
+
+	// Load content from Db
+	cs.LoadFromDb()
+
 	// Initialize HTTP router
-	data.Router = tag_api.NewRouter()
+	data.NewRouter(cs)
 
-	// Connect SQL DB
-	err = data.ConnectDB(DbUser, DbPass, DbName, settings.hostDb, settings.portDb)
-	if err != nil {
-		tag_api.Log.Error.Println(err)
-		os.Exit(1)
-	}
-	defer data.Db.Close()
-
-	// Connect Bolt DB
-	err = data.ConnectBolt(BoltDB)
-	if err != nil {
-		tag_api.Log.Error.Println(err)
-		os.Exit(1)
-	}
-	defer data.BoltDb.Close()
-
-	// Load images
-	data.LoadImages()
-
-	// Store images
-	data.StoreImages()
-
-	// Load groups
-	data.LoadGroups()
-
-	// Load map of images for each group
-	data.LoadImagesGroups()
-
-	// Store groups
-	data.StoreGroups()
-
-	// Refresh groups and images
-	data.RefreshImages()
-	data.RefreshGroups()
-
-	data.StartServer(settings.hostApi, settings.portApi, settings.hostNATS, settings.portNATS)
+	data.StartServer()
 	os.Exit(0)
 }

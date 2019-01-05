@@ -9,8 +9,9 @@ import (
 
 type Settings struct {
 	debug    bool
-	logfile  string
+	logFile  string
 	server   string
+	boltFile string
 	hostDb   string
 	portDb   string
 	nameDb   string
@@ -26,18 +27,33 @@ func (settings *Settings) validateFlags() (err error) {
 	var dirInfo os.FileInfo
 
 	// Validate Logfile
-	if len(settings.logfile) != 0 {
-		relPath = filepath.Dir(settings.logfile)
-		if absolutePath, err = filepath.Abs(settings.logfile); err != nil {
-			return fmt.Errorf("-logfile %s %v", settings.logfile, err)
+	if len(settings.logFile) != 0 {
+		relPath = filepath.Dir(settings.logFile)
+		if absolutePath, err = filepath.Abs(settings.logFile); err != nil {
+			return fmt.Errorf("-log %s %v", settings.logFile, err)
 		}
 		dirInfo, err = os.Stat(relPath)
 		if os.IsNotExist(err) {
-			return fmt.Errorf("-logfile %s: directory %s %v", settings.logfile, relPath, err)
+			return fmt.Errorf("-log %s: directory %s %v", settings.logFile, relPath, err)
 		} else if !dirInfo.IsDir() {
-			return fmt.Errorf("-logfile %s: %s is not a directory", settings.logfile, relPath)
+			return fmt.Errorf("-log %s: %s is not a directory", settings.logFile, relPath)
 		}
-		settings.logfile = absolutePath
+		settings.logFile = absolutePath
+	}
+
+	// Validate BoltDb file
+	if len(settings.logFile) != 0 {
+		relPath = filepath.Dir(settings.logFile)
+		if absolutePath, err = filepath.Abs(settings.logFile); err != nil {
+			return fmt.Errorf("-logfile %s %v", settings.logFile, err)
+		}
+		dirInfo, err = os.Stat(relPath)
+		if os.IsNotExist(err) {
+			return fmt.Errorf("-logfile %s: directory %s %v", settings.logFile, relPath, err)
+		} else if !dirInfo.IsDir() {
+			return fmt.Errorf("-logfile %s: %s is not a directory", settings.logFile, relPath)
+		}
+		settings.logFile = absolutePath
 	}
 	return
 }
@@ -46,7 +62,8 @@ func (settings *Settings) getCmdLine() (err error) {
 
 	// Define command-line arguments
 	flag.BoolVar(&settings.debug, "debug", false, "Debug logging")
-	flag.StringVar(&settings.logfile, "log", "", "Specify logging filename")
+	flag.StringVar(&settings.logFile, "log", "", "Specify logging filename")
+	flag.StringVar(&settings.boltFile, "bolt", BoltDB, "Specify BoltDB filename")
 	flag.StringVar(&settings.hostApi, "host", "", "Specify Api host")
 	flag.StringVar(&settings.portApi, "port", "8080", "Specify Api port")
 	flag.StringVar(&settings.hostDb, "dbhost", "", "Specify DB host")
