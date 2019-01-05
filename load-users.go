@@ -10,9 +10,7 @@ func (bs *BoltService) loadUsers() {
 	var user User
 	var rows *sqlx.Rows
 
-	bs.UserMap = make(UserMap)
-
-	// Load users
+	// Query users
 	query = makeQuery(user, UserQuery)
 	Log.Debug.Printf("UserQuery: %s\n", query)
 	rows, err = bs.db.Queryx(query)
@@ -20,6 +18,9 @@ func (bs *BoltService) loadUsers() {
 		Log.Error.Printf("Load Users: %v\n", err)
 		return
 	}
+
+	// Load into UserMap
+	bs.UserMap = make(UserMap)
 	for rows.Next() {
 		err = rows.StructScan(&user)
 		if err != nil {

@@ -12,7 +12,7 @@ func (bs *BoltService) loadGroups() {
 	var g Group
 	var rows *sqlx.Rows
 
-	// Load group map
+	// Query groups
 	query = makeQuery(g, GroupQuery)
 	Log.Debug.Printf("GroupQuery: %s\n", query)
 	rows, err = bs.db.Queryx(query)
@@ -20,6 +20,9 @@ func (bs *BoltService) loadGroups() {
 		Log.Error.Printf("Load Groups: %v\n", err)
 		return
 	}
+
+	// Load into GroupMap
+	bs.GroupMap = make(GroupMap)
 	for rows.Next() {
 		g = Group{
 			ImagesGroupsMap: make(ImagesGroupsMap),
@@ -43,7 +46,7 @@ func (bs *BoltService) loadImagesGroups() {
 	var ok bool
 	var entries, ignored int
 
-	// Get group image mapping
+	// Query group-image mapping
 	query = makeQuery(ig, ImagesGroupsQuery)
 	Log.Debug.Printf("ImagesGroupsQuery: %s\n", query)
 	rows, err = bs.db.Queryx(query)
@@ -51,6 +54,8 @@ func (bs *BoltService) loadImagesGroups() {
 		Log.Error.Printf("Load ImagesGroups: %v\n", err)
 		return
 	}
+
+	// Load into GroupMap
 	for rows.Next() {
 		err = rows.StructScan(&ig)
 		if err != nil {

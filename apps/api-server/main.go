@@ -68,6 +68,7 @@ func main() {
 	defer cs.CloseNATS()
 
 	// Load content from Db
+	cs.EnableLoadAll()
 	cs.LoadFromDb()
 
 	// Initialize HTTP router

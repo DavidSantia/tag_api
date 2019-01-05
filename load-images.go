@@ -10,9 +10,7 @@ func (bs *BoltService) loadImages() {
 	var image Image
 	var rows *sqlx.Rows
 
-	bs.ImageMap = make(ImageMap)
-
-	// Load images
+	// Query images
 	query = makeQuery(image, ImageQuery)
 	Log.Debug.Printf("ImageQuery: %s\n", query)
 	rows, err = bs.db.Queryx(query)
@@ -20,6 +18,9 @@ func (bs *BoltService) loadImages() {
 		Log.Error.Printf("Load Images: %v\n", err)
 		return
 	}
+
+	// Load into ImageMap
+	bs.ImageMap = make(ImageMap)
 	for rows.Next() {
 		err = rows.StructScan(&image)
 		if err != nil {

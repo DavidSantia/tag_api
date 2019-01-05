@@ -9,6 +9,8 @@ func NewData(host, port string) (data *ApiData) {
 
 	data = &ApiData{apiUrl: host + ":" + port}
 	data.InitSessions()
+
+	d = data
 	return
 }
 
@@ -18,6 +20,9 @@ type ApiData struct {
 	router         *httprouter.Router
 	sessionManager *scs.Manager
 }
+
+// For session access -- TODO: create session service, add to handler wrappers
+var d *ApiData
 
 type UserMap map[int64]User
 
