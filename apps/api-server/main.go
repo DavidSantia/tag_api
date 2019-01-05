@@ -52,34 +52,39 @@ func main() {
 	tag_api.Log.Info.Printf("-------- %s Server [Version %s-%s Build %s %s] --------",
 		settings.server, GitBranch, GitCommit, GitState, BuildDate)
 
-	// Initialize Db service
-	ds := tag_api.NewDbService(DbUser, DbPass, DbName, settings.hostDb, settings.portDb)
-	err = ds.Connect()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	defer ds.Close()
-
 	// Initialize content service
 	cs := tag_api.NewContentService(settings.boltFile, DbName)
-	cs.ConfigureDbService(ds)
-	cs.ConfigureNATS(settings.hostNATS, settings.portNATS, NSub)
 
-	// Initialize NATS
-	err = cs.ConnectNATS()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	defer cs.CloseNATS()
+	// This illustrates two ways of using the content service
+	if settings.loadDb {
 
-	// Load all content from Db
-	cs.EnableLoadAll()
-	err = cs.LoadFromDb()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		// Option 1: Load all content from Db
+		ds := tag_api.NewDbService(DbUser, DbPass, DbName, settings.hostDb, settings.portDb)
+		err = ds.Connect()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		defer ds.Close()
+		cs.ConfigureDbService(ds)
+
+		cs.EnableLoadAll()
+		err = cs.LoadFromDb()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	} else {
+
+		// Option 2: Listen to NATS messaging for content updates from the updater service
+		cs.ConfigureNATS(settings.hostNATS, settings.portNATS, NSub)
+
+		err = cs.ConnectNATS()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		defer cs.CloseNATS()
 	}
 
 	// Initialize HTTP router

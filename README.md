@@ -2,12 +2,11 @@
 API using Go-lang struct tags to load SQL data and implement JSON endpoints.
 
 ## Goal
-
 Demonstrate how simple it is to prototype and modify an API in Go.
 
 By simply adjusting or adding a field to a Go struct, you automatically update both how the server loads from the database, as well as what it outputs for the API endpoint.
 
-* This project builds a Docker database container with sample Image and User data
+* This project builds a Docker database image with sample data
 * The sample data images come from https://clients3.google.com/cast/chromecast/home
 
 You can clone the project with
@@ -20,22 +19,29 @@ It also uses govvv to provide the Github version string in the code.
 go get "github.com/ahmetb/govvv"
 ```
 
-## Database Setup
-
-Build the database container as follows
+## Building Apps and Images
+A script `build.sh` is provided that automatically builds the apps and images for this project
 ```sh
 cd docker
-docker build -t tagdemo/mysql ./data
+./build.sh
+```
+### Database Image
+Along with the other images, `build.sh` prepares the MySQL database.
+This can also be done manually, as follows:
+```sh
+cd docker
+docker build -t tagdemo/mysql ./mysql
 ```
 
-Start the MySQL container as follows:
+A `docker-compose.yml` file is provided to start the full system, including the database.
+You can also start the MySQL container manually, as follows:
 ```sh
 docker run --name tagdemo-mysql --rm -p 3306:3306 tagdemo/mysql
 ```
 As shown above, we are mapping the MySQL default port 3306 from the container, to 3306 on localhost.
 
 * If this conflicts with a local installations of MySQL server, specify a different port
-* If you change the port on the docker run command, also edit **DbPort** in [config.go](https://github.com/DavidSantia/tag_api/blob/master/config.go)
+* If you change the MySQL port, also specify `-dbport` in the [api-server/Dockerfile](https://github.com/DavidSantia/tag_api/blob/master/docker/auth-server/Dockerfile) entrypoint.
 
 The database will be ready after you see the message:
 ```
@@ -44,54 +50,82 @@ The database will be ready after you see the message:
 
 If you need to stop the MySQL container, use
 ```sh
-docker kill tagdemo-mysql
+docker stop tagdemo-mysql
 ```
 
-## API Server Setup
+### API Server Image
+The `build.sh` script also makes the API server app and image.
 
-Build the Auth server as follows
+#### Developing
+However, you can run this server locally without Docker, which is helpful when developing code.
+
+Build the API server as follows:
 ```sh
-cd apps/auth-server
+cd apps/api-server
 govvv build
 ```
 
-Build the Content server as follows
+Use the help option to get command-line usage
 ```sh
-cd ../content-server
-govvv build
-```
-
-Use `-help` to get command-line usage
-```
-Usage of ./content-server:
+./api-server -h
+Usage of ./api-server:
+  -bolt string
+    	Specify BoltDB filename (default "./content.db")
   -dbhost string
-    	Specify DB host (default "localhost")
+    	Specify DB host
   -dbport string
     	Specify DB port (default "3306")
   -debug
     	Debug logging
+  -host string
+    	Specify Api host
   -log string
     	Specify logging filename
+  -nhost string
+    	Specify NATS host
+  -nport string
+    	Specify NATS port (default "4222")
+  -port string
+    	Specify Api port (default "8080")
 ```
 
-## Running in Docker
-The *build.sh* script compiles using the Go docker image.
+In a separate terminal, run the Database and NATS services.
+```sh
+cd docker
+docker-compose -f docker-compose-db-nats.yml up
+```
+This maps the MySQL and NATS ports to localhost.
+
+Then run the app as follows:
+```sh
+./api-server -dbhost 127.0.0.1 -dbload -debug
+```
+
+## Running the Basic Server
+First run the `build.sh` script to compiles the apps and images.
 ```sh
 cd docker
 ./build.sh
 ```
-This prepares *auth-server.tar* and *content-server.tar* to install on containers.
 
-Then use docker-compose to build the database, auth-server and content-server images:
-```sh
-docker-compose build
+You should see the following images:
+```
+REPOSITORY                      TAG                 IMAGE ID            CREATED             SIZE
+tagdemo/api-server              latest              0fc6d6e09ab2        About an hour ago   8.98MB
+tagdemo/mysql                   latest              9d795daac22c        About an hour ago   255MB
 ```
 
-Then start the database, NATS server, auth-server and content-server containers:
+There is also a `clean.sh` script to remove containers and images from your previous builds.
+```sh
+./clean.sh
+```
+
+Then start the database, NATS server, and api-server as follows:
 ```sh
 docker-compose up
 ```
-The NATS server handles communication between the auth and content servers, which allows you to scale up the number of content servers.  Scaling assumes you are configuring a gateway to route traffic to multiple containers, in which case you would have each server (modifying `data.StartServer(":8080", name)`) listen on a port assigned by the container orchestration.
+The NATS server handles communication between the services.  In this Basic example, the API server server subscribes to NATS, but
+it doesn't do anything further.
 
 ## How it works
 
@@ -111,8 +145,8 @@ type Image struct {
 	Media        string  `json:"media" db:"media"`
 }
 
-const ImageQuery = "FROM images i " +
-	"WHERE i.media IS NOT NULL"
+const ImageQuery = `FROM images i
+WHERE i.media IS NOT NULL`
 ```
 Tags shown above are interpreted as follows:
 * **json**: field name returned in API
@@ -123,18 +157,20 @@ The **sql** tag is useful when
 * using joined statements with otherwise ambiguous field names
 * you want to insert an IFNULL or other logic
 
-Use `./content-server -debug` to debug the SQL queries that are being auto-generated from the struct tags.
-```
-DEBUG: 2017/08/26 14:07:03 Select "id" for field: Id [int64]
-DEBUG: 2017/08/26 14:07:03 Select "width" for field: Width [int64]
-DEBUG: 2017/08/26 14:07:03 Select "height" for field: Height [int64]
-DEBUG: 2017/08/26 14:07:03 Select "url" for field: Url [string]
-DEBUG: 2017/08/26 14:07:03 Select "title" for field: Title [*string]
-DEBUG: 2017/08/26 14:07:03 Select "artist" for field: Artist [*string]
-DEBUG: 2017/08/26 14:07:03 Select "gallery" for field: Gallery [*string]
-DEBUG: 2017/08/26 14:07:03 Select "organization" for field: Organization [*string]
-DEBUG: 2017/08/26 14:07:03 Select "media" for field: Media [string]
-DEBUG: 2017/08/26 14:07:03 ImageQuery: SELECT id, width, height, url, title, artist, gallery, organization, media FROM images i WHERE i.media IS NOT NULL
+Use `./api-server -debug` to debug the SQL queries that are being auto-generated from the struct tags.
+```sh
+./api-server -dbhost 127.0.0.1 -dbload -debug
+DEBUG: 2019/01/05 14:12:01 GroupQuery: SELECT id, name, sess_seconds
+FROM groups g
+DEBUG: 2019/01/05 14:12:01 ImageQuery: SELECT id, width, height, url, title, artist, gallery, organization, media
+FROM images i
+WHERE i.media IS NOT NULL
+ INFO: 2019/01/05 14:12:01 Load Images: 9 entries total
+DEBUG: 2019/01/05 14:12:01 ImagesGroupsQuery: SELECT group_id, image_id
+FROM images_groups ig
+DEBUG: 2019/01/05 14:12:01 UserQuery: SELECT id, group_id, guid, first_name, middle_init, last_name, email, addr, city, state, zip, gender, status
+FROM users u
+WHERE u.status IS NOT NULL
 ```
 
 ### func (data *ApiData) MakeQuery
@@ -151,13 +187,11 @@ MakeQuery returns one output, the final query. This will be a combination of the
 
 ### Example Code
 ```go
-var i Image
-
-// Load images
-query := data.MakeQuery(i, ImageQuery)
-rows, err := data.Db.Queryx(query)
+query = makeQuery(image, ImageQuery)
+Log.Debug.Printf("ImageQuery: %s\n", query)
+rows, err = bs.ds.db.Queryx(query)
 if err != nil {
-	fmt.Printf("Load Images: %v\n", err)
+	Log.Error.Printf("Load Images: %v\n", err)
 	return
 }
 ```
@@ -165,41 +199,39 @@ if err != nil {
 Notice we have automatically assembled the query as follows:
 ```sql
 SELECT id, width, height, url, title, artist, gallery, organization, media
-  FROM images i
-  WHERE i.media IS NOT NULL
+FROM images i
+WHERE i.media IS NOT NULL
 ```
 
-Because we are using the sqlx package, we also load each struct in one step with **rows.StructScan()** as shown
+Because this app uses the sqlx package, it loads each struct in one step with **rows.StructScan()** as shown
 ```go
 for rows.Next() {
-	err = rows.StructScan(&i)
+	err = rows.StructScan(&image)
 	if err != nil {
 		fmt.Printf("Load Images: %v\n", err)
 		continue
 	}
-	data.ImageMap[i.Id] = i
+	bs.ImageMap[image.Id] = image
 }
 ```
 ### Accessing the API
 Once you have the API server up and running, use your browser to authenticate and access data.
 
-#### Auth server endpoints (localhost:8081)
+#### Authenticate endpoints
 ```go
-router.Handle("GET", "/", AuthIndex)
-router.Handle("GET", "/authenticate", HandleAuthTester)
-router.Handle("POST", "/authenticate", HandleAuthenticate)
-router.Handle("GET", "/keepalive", HandleAuthKeepAlive)
+router.Handle("GET", "/authenticate", handleAuthTestpage)
+router.Handle("POST", "/authenticate", makeHandleAuthenticate(cs))
+router.Handle("GET", "/keepalive", makeHandleAuthKeepAlive(cs))
 ```
 
-#### Content server endpoints (localhost:8080)
+#### Content endpoints
 ```go
-router.Handle("GET", "/", ContentIndex)
-router.Handle("GET", "/image", HandleAllImages)
-router.Handle("GET", "/image/:Id", HandleImage)
-router.Handle("GET", "/user", HandleUser)
+router.Handle("GET", "/image", makeHandleAllImages(cs))
+router.Handle("GET", "/image/:Id", makeHandleImage(cs))
+router.Handle("GET", "/user", makeHandleUser(cs))
 ```
 
-By browsing to [localhost:8081/authenticate](http://localhost:8081/authenticate), you will see a test framework with two buttons.
+By browsing to [localhost:8080/authenticate](http://localhost:8080/authenticate), you will see a test page with two buttons.
 ![Figure 1: Architecture](https://raw.githubusercontent.com/DavidSantia/tag_api/master/README-2buttons.png)
 
 Each button authenticates you as a particular user from the sample database, either in the Basic or Premium group. Once authenticated, your browser will have a Session cookie to allow you to continue using the API.
@@ -209,3 +241,4 @@ You can then browse to
 * [localhost:8080/image](http://localhost:8080/image) to see images you have access to
 * [localhost:8080/image/4](http://localhost:8080/image/4) to see image id 4
 * [localhost:8080/user](http://localhost:8080/user) to see your user profile data
+

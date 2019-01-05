@@ -9,6 +9,7 @@ import (
 
 type Settings struct {
 	debug    bool
+	loadDb   bool
 	logFile  string
 	server   string
 	boltFile string
@@ -62,6 +63,7 @@ func (settings *Settings) getCmdLine() (err error) {
 
 	// Define command-line arguments
 	flag.BoolVar(&settings.debug, "debug", false, "Debug logging")
+	flag.BoolVar(&settings.loadDb, "dbload", false, "Load from DB instead of BoltDB")
 	flag.StringVar(&settings.logFile, "log", "", "Specify logging filename")
 	flag.StringVar(&settings.boltFile, "bolt", BoltDB, "Specify BoltDB filename")
 	flag.StringVar(&settings.hostApi, "host", "", "Specify Api host")

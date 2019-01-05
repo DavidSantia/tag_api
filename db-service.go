@@ -90,6 +90,7 @@ func makeQuery(dt interface{}, fromClause string, v ...interface{}) (query strin
 	}
 
 	// Generate SELECT paramas from struct tags, then add FROM clause
-	query = "SELECT " + strings.Join(params, ", ") + " " + fmt.Sprintf(fromClause, v...)
+	query = "SELECT " + strings.Join(params, ", ") +
+		strings.Replace(fmt.Sprintf(fromClause, v...), "FROM", "\nFROM", 1)
 	return
 }
