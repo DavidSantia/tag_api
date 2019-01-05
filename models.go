@@ -15,8 +15,8 @@ type Image struct {
 	Media        string  `json:"media" db:"media"`
 }
 
-const ImageQuery = "FROM images i " +
-	"WHERE i.media IS NOT NULL"
+const ImageQuery = `FROM images i
+WHERE i.media IS NOT NULL`
 
 // Group data
 
@@ -27,7 +27,7 @@ type Group struct {
 	ImagesGroupsMap ImagesGroupsMap `json:"-"`
 }
 
-const GroupQuery = "FROM groups g"
+const GroupQuery = `FROM groups g`
 
 // ImagesGroups data
 
@@ -36,7 +36,7 @@ type ImagesGroups struct {
 	ImageId int64 `json:"image_id" db:"image_id"`
 }
 
-const ImagesGroupsQuery = "FROM images_groups ig"
+const ImagesGroupsQuery = `FROM images_groups ig`
 
 // User data
 
@@ -56,8 +56,8 @@ type User struct {
 	Status     bool   `json:"status" db:"status"`
 }
 
-const UserQuery = "FROM users u " +
-	"WHERE u.status IS NOT NULL"
+const UserQuery = `FROM users u
+WHERE u.status IS NOT NULL`
 
 type UserMessage struct {
 	Command   string `json:"command"`

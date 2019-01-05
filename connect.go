@@ -1,49 +1,22 @@
 package tag_api
 
 import (
-	"fmt"
-	"strings"
-	"time"
-
 	"github.com/boltdb/bolt"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jmoiron/sqlx"
+	"github.com/nats-io/go-nats"
 )
 
-func (data *ApiData) ConnectDB() (err error) {
-	var resource, user, pass, name string
+func (bs *BoltService) connectBolt() (err error) {
 
-	// Set DB connection resource string
-	user = DbUser
-	pass = DbPass
-	name = DbName
-	resource = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, pass, data.DbHost, data.DbPort, name)
-
-	Log.Info.Printf("Connecting to %s on %s", name, data.DbHost)
-	// Retry connection if DB still initializing
-	for i := 0; i < DbConnectRetries; i++ {
-		data.Db, err = sqlx.Connect("mysql", resource)
-		if err != nil {
-			if strings.Contains(err.Error(), "connection refused") {
-				time.Sleep(10 * time.Second)
-				Log.Info.Printf("Retry connection #%d", i+1)
-				continue
-			}
-			return
-		}
-	}
-
+	Log.Info.Printf("Connecting to %s", bs.settings.boltFile)
+	bs.boltDb, err = bolt.Open(bs.settings.boltFile, 0644, nil)
 	return
 }
 
-func (data *ApiData) ConnectBolt() (err error) {
-	var file string = BoltDB
+func (bs *BoltService) ConnectNATS() (err error) {
 
-	Log.Info.Printf("Connecting to %s", file)
-	data.BoltDb, err = bolt.Open(file, 0644, nil)
+	natsUrl := "nats://" + bs.settings.hostNATS + ":" + bs.settings.portNATS
 
-	// Bucket name
-	data.BoltBucket = []byte("Content")
-
+	Log.Info.Printf("Connecting to %s", natsUrl)
+	bs.nconn, err = nats.Connect(natsUrl)
 	return
 }

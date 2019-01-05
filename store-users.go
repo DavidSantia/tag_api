@@ -10,7 +10,7 @@ import (
 
 // Store current content to BoltDb
 
-func (bs *BoltService) storeGroups() {
+func (bs *BoltService) storeUsers() {
 	var err error
 
 	// Store in Bolt
@@ -24,26 +24,26 @@ func (bs *BoltService) storeGroups() {
 			e = fmt.Errorf("Create bucket %s in Bolt: %v", bs.settings.boltBucket, e)
 			return
 		}
-		k = []byte("groups")
+		k = []byte("users")
 
 		enc := gob.NewEncoder(&b)
-		e = enc.Encode(bs.GroupMap)
+		e = enc.Encode(bs.UserMap)
 		if e != nil {
-			e = fmt.Errorf("Encode GroupMap for Bolt: %v", e)
+			e = fmt.Errorf("Encode UserMap for Bolt: %v", e)
 			return
 		}
 
 		e = bucket.Put(k, b.Bytes())
 		if e != nil {
-			e = fmt.Errorf("Store GroupMap in Bolt: %v", e)
+			e = fmt.Errorf("Store UserMap in Bolt: %v", e)
 			return
 		}
 		return
 	})
 	if err != nil {
-		Log.Error.Printf("Store Groups: %v", err)
+		Log.Error.Printf("Store Users: %v", err)
 		return
 	}
 
-	Log.Info.Println("Store Groups: Wrote GroupMap to Bolt")
+	Log.Info.Println("Store Users: Wrote UserMap to Bolt")
 }

@@ -15,111 +15,108 @@ import (
 func (data *ApiData) InitSessions() {
 
 	// Initialise the session manager
-	data.SessionManager = scs.NewCookieManager("u46IpCV9y5Vlur8YvODJEhgOY8m9JVE4")
+	data.sessionManager = scs.NewCookieManager("u46IpCV9y5Vlur8YvODJEhgOY8m9JVE4")
 
 	// maximum length of time a session can be inactive
-	data.SessionManager.IdleTimeout(30 * time.Minute)
+	data.sessionManager.IdleTimeout(30 * time.Minute)
 
 	// maximum length of time that a session is valid
-	data.SessionManager.Lifetime(8 * time.Hour)
+	data.sessionManager.Lifetime(8 * time.Hour)
 
 	// whether the session cookie should be retained after a user closes their browser
-	data.SessionManager.Persist(false)
+	data.sessionManager.Persist(false)
 }
 
 // HTTP Handlers
 
-func HandleAuthenticate(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	var u User
-	var b []byte
+func makeHandleAuthenticate(cs ContentService) func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		var user User
+		var b []byte
 
-	auth := r.Header.Get("Authorization")
-	if len(auth) == 0 || !strings.Contains(auth, "Bearer") {
-		HandleError(w, http.StatusBadRequest, r.RequestURI, fmt.Errorf("Invalid authentication: %s", auth))
-		return
+		auth := r.Header.Get("Authorization")
+		if len(auth) == 0 || !strings.Contains(auth, "Bearer") {
+			HandleError(w, http.StatusBadRequest, r.RequestURI, fmt.Errorf("Invalid authentication: %s", auth))
+			return
+		}
+
+		// Decode payload from JSON Web Token
+		token := strings.TrimSpace(strings.Replace(auth, "Bearer", "", 1))
+		payload, headers, err := jose.Decode(token, JwtKey)
+		if err != nil {
+			HandleError(w, http.StatusBadRequest, r.RequestURI, err)
+			return
+		}
+
+		Log.Debug.Printf("Headers = %+v\n", headers)
+		Log.Debug.Printf("Payload = %s\n", payload)
+
+		// Make sure payload is JSON
+		if len(payload) == 0 || payload[0] != '{' {
+			HandleError(w, http.StatusBadRequest, r.RequestURI, fmt.Errorf("Payload decryption failed"))
+			return
+		}
+
+		Log.Debug.Printf("Authenticate Payload: %s\n", payload)
+
+		pl := JwtPayload{}
+		err = json.Unmarshal([]byte(payload), &pl)
+		if err != nil {
+			HandleError(w, http.StatusBadRequest, r.RequestURI, err)
+			return
+		}
+
+		// Lookup user by id
+		user, err = userFind(cs, pl)
+		if err != nil {
+			HandleError(w, http.StatusBadRequest, r.RequestURI, err)
+			return
+		}
+
+		// Store user data in session
+		session := d.sessionManager.Load(r)
+		err = session.PutInt64(w, "gid", user.GroupId)
+		if err != nil {
+			HandleError(w, http.StatusInternalServerError, r.RequestURI, err)
+			return
+		}
+		err = session.PutInt64(w, "uid", user.Id)
+		if err != nil {
+			HandleError(w, http.StatusInternalServerError, r.RequestURI, err)
+			return
+		}
+
+		// Reply
+		b, err = json.Marshal(user)
+		if err != nil {
+			HandleError(w, http.StatusInternalServerError, r.RequestURI, err)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		HandleReply(w, http.StatusOK, string(b)+"\n")
 	}
-
-	// Decode payload from JSON Web Token
-	token := strings.TrimSpace(strings.Replace(auth, "Bearer", "", 1))
-	payload, headers, err := jose.Decode(token, JwtKey)
-	if err != nil {
-		HandleError(w, http.StatusBadRequest, r.RequestURI, err)
-		return
-	}
-
-	Log.Debug.Printf("Headers = %+v\n", headers)
-	Log.Debug.Printf("Payload = %s\n", payload)
-
-	// Make sure payload is JSON
-	if len(payload) == 0 || payload[0] != '{' {
-		HandleError(w, http.StatusBadRequest, r.RequestURI, fmt.Errorf("Payload decryption failed"))
-		return
-	}
-
-	Log.Debug.Printf("Authenticate Payload: %s\n", payload)
-
-	pl := JwtPayload{}
-	err = json.Unmarshal([]byte(payload), &pl)
-	if err != nil {
-		HandleError(w, http.StatusBadRequest, r.RequestURI, err)
-		return
-	}
-
-	// Lookup user by id
-	u, err = d.UserFind(pl)
-	if err != nil {
-		HandleError(w, http.StatusBadRequest, r.RequestURI, err)
-		return
-	}
-
-	// Send message to content server
-	err = d.MessageAddUser(u)
-	if err != nil {
-		HandleError(w, http.StatusInternalServerError, r.RequestURI, err)
-		return
-	}
-
-	// Store user data in session
-	session := d.SessionManager.Load(r)
-	err = session.PutInt64(w, "gid", u.GroupId)
-	if err != nil {
-		HandleError(w, http.StatusInternalServerError, r.RequestURI, err)
-		return
-	}
-	err = session.PutInt64(w, "uid", u.Id)
-	if err != nil {
-		HandleError(w, http.StatusInternalServerError, r.RequestURI, err)
-		return
-	}
-
-	// Reply
-	b, err = json.Marshal(u)
-	if err != nil {
-		HandleError(w, http.StatusInternalServerError, r.RequestURI, err)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	HandleReply(w, http.StatusOK, string(b)+"\n")
 }
 
-func HandleAuthKeepAlive(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	session := d.SessionManager.Load(r)
-	id, err := session.GetInt64("uid")
-	if err != nil || id == 0 {
-		HandleError(w, http.StatusUnauthorized, r.RequestURI, fmt.Errorf("Session not authenticated"))
-		return
-	}
+func makeHandleAuthKeepAlive(cs ContentService) func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		session := d.sessionManager.Load(r)
+		id, err := session.GetInt64("uid")
+		if err != nil || id == 0 {
+			HandleError(w, http.StatusUnauthorized, r.RequestURI, fmt.Errorf("Session not authenticated"))
+			return
+		}
 
-	// Reset inactivity period
-	err = session.Touch(w)
-	if err != nil {
-		HandleError(w, http.StatusInternalServerError, r.RequestURI, err)
-		return
-	}
+		// Reset inactivity period
+		err = session.Touch(w)
+		if err != nil {
+			HandleError(w, http.StatusInternalServerError, r.RequestURI, err)
+			return
+		}
 
-	// Reply
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	HandleReply(w, http.StatusOK, `{"message":"IdleTimeout Updated","status":"OK"}`)
+		// Reply
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		HandleReply(w, http.StatusOK, `{"message":"IdleTimeout Updated","status":"OK"}`)
+	}
 }
 
 // Data Interfaces
@@ -127,7 +124,7 @@ func HandleAuthKeepAlive(w http.ResponseWriter, r *http.Request, _ httprouter.Pa
 func GetGroupIdFromSession(r *http.Request) (gid int64, err error) {
 
 	// See if session is authenticated
-	session := d.SessionManager.Load(r)
+	session := d.sessionManager.Load(r)
 	gid, err = session.GetInt64("gid")
 	if err != nil || gid == 0 {
 		err = fmt.Errorf("Session not authenticated")
@@ -135,11 +132,11 @@ func GetGroupIdFromSession(r *http.Request) (gid int64, err error) {
 	return
 }
 
-func GetUserFromSession(r *http.Request) (u User, err error) {
+func GetUserFromSession(cs ContentService, r *http.Request) (user User, err error) {
 	var ok bool
 
 	// See if session is authenticated
-	session := d.SessionManager.Load(r)
+	session := d.sessionManager.Load(r)
 	id, err := session.GetInt64("uid")
 	if err != nil || id == 0 {
 		err = fmt.Errorf("Session not authenticated")
@@ -147,14 +144,14 @@ func GetUserFromSession(r *http.Request) (u User, err error) {
 	}
 
 	// Lookup user
-	u, ok = d.UserMap[id]
+	user, ok = cs.GetUser(id)
 	if !ok {
 		err = fmt.Errorf("UserId %d not valid", id)
 	}
 	return
 }
 
-func (data *ApiData) UserFind(pl JwtPayload) (u User, err error) {
+func userFind(cs ContentService, pl JwtPayload) (user User, err error) {
 	var ok bool
 
 	// Validate payload
@@ -168,20 +165,20 @@ func (data *ApiData) UserFind(pl JwtPayload) (u User, err error) {
 	}
 
 	// Lookup user
-	u, ok = data.UserMap[pl.UserId]
+	user, ok = cs.GetUser(pl.UserId)
 	if !ok {
 		err = fmt.Errorf("UserId %d not valid", pl.UserId)
 		return
 	}
 
 	// Validate Guid
-	if u.Guid != pl.Guid {
+	if user.Guid != pl.Guid {
 		err = fmt.Errorf("Invalid Guid %s specified for UserId %d", pl.Guid, pl.UserId)
 		return
 	}
 
 	// Validate Status
-	if !u.Status {
+	if !user.Status {
 		err = fmt.Errorf("Expired User %d", pl.UserId)
 	}
 	return

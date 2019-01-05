@@ -14,7 +14,7 @@ INSERT INTO groups(name, sess_seconds) VALUES
 --
 
 INSERT INTO images(width, height, url, title, artist, gallery, organization, media) VALUES
-(512, 362, "https://lh3.ggpht.com/iqWhX4gA_fDh_XUFb6bjoCVusT6lIAW4r1KCbBFLDyeqSczEwdzzwEA4SUn5Z_qDlef4", "Bodegón", "Rubén Darío Velázquez", NULL, "Google Open Gallery", "Art"),
+(2048, 1363, "https://lh3.googleusercontent.com/e3FUFq1JSt7xRjwF-0C2DVUynCwsmu27TNqpo1p8OTK0TxrhxkFR6w", "Del Norte Coast Redwoods State Park, CA", "Jeff Moreau", "Featured photos", "Google+", "Photo"),
 (379, 512, "https://lh3.ggpht.com/RbL9u5vdZMxltINmK5w48iS3_fMhfjVR7SxD-MMB1OZShj9OnynDhdAcvk7N3JDzvdbR-tk", "Portrait of Gabriel Bernard de Rieux", "Maurice-Quentin de La Tour", "The J. Paul Getty Museum", "Google Cultural Institute", "Art"),
 (455, 512, "https://lh3.ggpht.com/tF611zF3LcdZLnJqCPmnNwvsuN4rAjwPNzrO5Uu4G8HT1iPUzmBI7w", "The wattles", "Elioth Gruner", "Art Gallery of New South Wales", "Google Cultural Institute", "Art"),
 (512, 384, "https://lh4.ggpht.com/CpBfF0vqJ2eqiL5Af3J5VtbqmIZQ9IpM2NJFdmE_49gGV2YIm0muJnMibzjpm-9cqxfOgg", "Envol pastel", "Octave Pixel", "galerie TACT: Fresh artistes", "Google Open Gallery", "Art"),
@@ -22,7 +22,10 @@ INSERT INTO images(width, height, url, title, artist, gallery, organization, med
 (512, 222, "https://lh3.ggpht.com/6swp7Zh21xlvw8NOEXYrMrUrcMSzzNvPd-3nZsR5RrrTQRTaMrKsdhIx4nHbVYyNmib2Jo_T9rR-gXQ", NULL, "Grzegorz Głowaty", NULL, NULL, "Photo"),
 (512, 342, "https://lh3.ggpht.com/Vor04AFDXMTOb9tE0D0eK5zkuyKwHjvfjegcFd1sJxlfZWMeTFbjuMTo0PPQ6pHHQx5--Cc4eT48d9g", NULL, "Raja Ramakrishnan", NULL, NULL, "Photo"),
 (512, 311, "https://lh3.ggpht.com/sDM3YrHDSPg4o75K8cna0M2N0yMSkXEC80Cc8AQL0YiNntHbmo9YPkRJ936wmsDubXGeBCxneBeTFpU", NULL, "Paul Moody", NULL, NULL, "Photo"),
-(2048, 1365, "https://lh3.ggpht.com/pwOiNl9yVpvleSguShs3MtXwUOPfMLtrQ3B4WUEoj0UR2bXgUEG1", "Early morning Bronte Beach", "Gil Baillache", NULL, NULL, "Photo");
+(2048, 1365, "https://lh3.ggpht.com/pwOiNl9yVpvleSguShs3MtXwUOPfMLtrQ3B4WUEoj0UR2bXgUEG1", "Early morning Bronte Beach", "Gil Baillache", NULL, NULL, "Photo"),
+(5211, 3211, "https://lh3.googleusercontent.com/hOr_QhX6R5di5iNPeZrnnkRTYryR5wZOMImK-6a1PtR3xf2c_8vdf8IKREFTsk238M6I9CuDNVR_KKkvC-0GdkY", NULL, "Asier Ríos Molina", "Featured photos", "Google+", "Photo"),
+(4897, 3266, "https://lh3.googleusercontent.com/GsfNjcjFACRpeMD9-xrFY63QYmZluzEBSVEfbHosF3UkYSCgKRVqpQWYKnnmm-9vKLyzeQ1ZWK8LdT1T6ZYJEwc", NULL, "Neal Grosskopf", "Featured photos", "Google+", "Photo"),
+(2048, 1367, "https://lh3.googleusercontent.com/lkrPyI9ETvIB-ghAZyAZMKLXE0MI2nRqnPy_U6YbWd8hajrLr06mFA", "Milsons Point, Sydney, Australia", "Keith McInnes", "Featured photos", "Google+", "Photo");
 
 --
 -- Sample data for images-groups
@@ -41,7 +44,10 @@ INSERT INTO images_groups(group_id, image_id) VALUES
 (3, 6),
 (3, 7),
 (3, 8),
-(3, 9);
+(3, 9),
+(3, 10),
+(3, 11),
+(3, 12);
 
 --
 -- Sample data for users

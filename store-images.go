@@ -8,26 +8,26 @@ import (
 	"github.com/boltdb/bolt"
 )
 
-// DB loaders
+// Store current content to BoltDb
 
-func (data *ApiData) StoreImages() {
+func (bs *BoltService) storeImages() {
 	var err error
 
 	// Store in Bolt
-	err = data.BoltDb.Update(func(tx *bolt.Tx) (e error) {
+	err = bs.boltDb.Update(func(tx *bolt.Tx) (e error) {
 		var bucket *bolt.Bucket
 		var b bytes.Buffer
 		var k []byte
 
-		bucket, e = tx.CreateBucketIfNotExists(data.BoltBucket)
+		bucket, e = tx.CreateBucketIfNotExists(bs.settings.boltBucket)
 		if e != nil {
-			e = fmt.Errorf("Create bucket %s in Bolt: %v", data.BoltBucket, e)
+			e = fmt.Errorf("Create bucket %s in Bolt: %v", bs.settings.boltBucket, e)
 			return
 		}
-		k = []byte("Images")
+		k = []byte("images")
 
 		enc := gob.NewEncoder(&b)
-		e = enc.Encode(data.ImageMap)
+		e = enc.Encode(bs.ImageMap)
 		if e != nil {
 			e = fmt.Errorf("Encode ImageMap for Bolt: %v", e)
 			return

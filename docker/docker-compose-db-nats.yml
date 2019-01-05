@@ -3,16 +3,12 @@ services:
   tagdemo-db:
     image: tagdemo/mysql
     container_name: tagdemo-mysql
-
-  tagdemo-api:
-    image: tagdemo/api-server
-    container_name: api-server
     ports:
-     - "8080:8080"
-    depends_on:
-      - tagdemo-db
-      - tagdemo-nats
+     - "3306:3306"
   
   tagdemo-nats:
     image: nats
     container_name: nats-server
+    ports:
+     - "4222:4222"
+  

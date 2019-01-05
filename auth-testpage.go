@@ -7,7 +7,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func HandleAuthTester(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func handleAuthTestpage(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	var testframe string = `<!DOCTYPE html>
 <html>

@@ -13,8 +13,6 @@ func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	fmt.Fprint(w, "<b>API Demo using Go-lang struct tags</b>")
 }
 
-var d *ApiData
-
 func HandleReply(w http.ResponseWriter, status int, j string) {
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")

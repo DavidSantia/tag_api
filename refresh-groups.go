@@ -8,22 +8,22 @@ import (
 	"github.com/boltdb/bolt"
 )
 
-// DB loaders
+// Refresh data loaded from Bolt Db
 
-func (data *ApiData) RefreshGroups() {
+func (bs *BoltService) refreshGroups() {
 	var err error
 
 	// Refresh images
-	err = data.BoltDb.View(func(tx *bolt.Tx) (e error) {
+	err = bs.boltDb.View(func(tx *bolt.Tx) (e error) {
 		var bucket *bolt.Bucket
 		var v, k []byte
 
-		bucket = tx.Bucket(data.BoltBucket)
+		bucket = tx.Bucket(bs.settings.boltBucket)
 		if bucket == nil {
-			e = fmt.Errorf("Bolt bucket %s not found", data.BoltBucket)
+			e = fmt.Errorf("Bolt bucket %s not found", bs.settings.boltBucket)
 			return
 		}
-		k = []byte("Groups")
+		k = []byte("groups")
 
 		v = bucket.Get(k)
 		if v == nil {
@@ -34,7 +34,7 @@ func (data *ApiData) RefreshGroups() {
 		b := bytes.NewBuffer(v)
 		dec := gob.NewDecoder(b)
 
-		e = dec.Decode(&data.GroupMap)
+		e = dec.Decode(&bs.GroupMap)
 		if e != nil {
 			e = fmt.Errorf("Parse GroupMap gob from Bolt: %v", e)
 			return
@@ -46,5 +46,5 @@ func (data *ApiData) RefreshGroups() {
 		Log.Error.Printf("Refresh Groups: %v\n", err)
 	}
 
-	Log.Info.Printf("Refresh Groups: %d entries loaded from Bolt\n", len(data.GroupMap))
+	Log.Info.Printf("Refresh Groups: %d entries loaded from Bolt\n", len(bs.GroupMap))
 }

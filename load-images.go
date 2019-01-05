@@ -4,29 +4,30 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func (data *ApiData) LoadImages() {
+func (bs *BoltService) loadImages() {
 	var err error
 	var query string
 	var image Image
 	var rows *sqlx.Rows
 
-	data.ImageMap = make(ImageMap)
-
-	// Load images
-	query = data.MakeQuery(image, ImageQuery)
+	// Query images
+	query = makeQuery(image, ImageQuery)
 	Log.Debug.Printf("ImageQuery: %s\n", query)
-	rows, err = data.Db.Queryx(query)
+	rows, err = bs.ds.db.Queryx(query)
 	if err != nil {
 		Log.Error.Printf("Load Images: %v\n", err)
 		return
 	}
+
+	// Load into ImageMap
+	bs.ImageMap = make(ImageMap)
 	for rows.Next() {
 		err = rows.StructScan(&image)
 		if err != nil {
 			Log.Error.Printf("Load Images: %v\n", err)
 			continue
 		}
-		data.ImageMap[image.Id] = image
+		bs.ImageMap[image.Id] = image
 	}
-	Log.Info.Printf("Load Images: %d entries total\n", len(data.ImageMap))
+	Log.Info.Printf("Load Images: %d entries total\n", len(bs.ImageMap))
 }
