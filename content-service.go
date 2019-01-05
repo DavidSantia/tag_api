@@ -1,16 +1,15 @@
 package tag_api
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/boltdb/bolt"
-	"github.com/jmoiron/sqlx"
 	"github.com/nats-io/go-nats"
 )
 
 type ContentService interface {
-	ConfigureDB(user, pass, name, host, port string)
-	CloseDB()
+	ConfigureDbService(ds *DbService)
 	ConfigureNATS(host, port, channel string)
 	ConnectNATS() (err error)
 	CloseNATS()
@@ -27,7 +26,7 @@ type ContentService interface {
 	UpdateFromCache()
 }
 
-func NewContentService(boltFile, boltBucket string) (cs ContentService) {
+func NewContentService(boltFile, boltBucket string) ContentService {
 	// Configure BoltDb settings
 	bs := BoltService{mutex: &sync.RWMutex{}}
 	bs.settings.boltFile = boltFile
@@ -36,7 +35,7 @@ func NewContentService(boltFile, boltBucket string) (cs ContentService) {
 }
 
 type BoltService struct {
-	settings    Settings
+	settings    ContentSettings
 	UserMap     UserMap
 	GroupMap    GroupMap
 	ImageMap    ImageMap
@@ -44,40 +43,27 @@ type BoltService struct {
 	updateGroup []byte
 	updateImage []byte
 	updateUser  []byte
+	ds          *DbService
 	boltDb      *bolt.DB
-	db          *sqlx.DB
 	nconn       *nats.Conn
 	mutex       *sync.RWMutex
 }
 
-type Settings struct {
+type ContentSettings struct {
 	enableGroups       bool
 	enableImages       bool
 	enableImagesGroups bool
 	enableUsers        bool
 	boltBucket         []byte
 	boltFile           string
-	userDb             string
-	passDb             string
-	nameDb             string
-	hostDb             string
-	portDb             string
 	hostNATS           string
 	portNATS           string
 	channelNATS        string
 }
 
-func (bs *BoltService) ConfigureDB(user, pass, name, host, port string) {
-	// Configure Db settings
-	bs.settings.userDb = user
-	bs.settings.passDb = pass
-	bs.settings.nameDb = name
-	bs.settings.hostDb = host
-	bs.settings.portDb = port
-}
-
-func (bs *BoltService) CloseDB() {
-	bs.db.Close()
+func (bs *BoltService) ConfigureDbService(ds *DbService) {
+	// Configure Db service
+	bs.ds = ds
 }
 
 func (bs *BoltService) ConfigureNATS(host, port, channel string) {
@@ -131,12 +117,15 @@ func (bs *BoltService) LoadCacheUpdates() (err error) {
 }
 
 func (bs *BoltService) LoadFromDb() (err error) {
-	// Connect Db if not intialized
-	if bs.db == nil {
-		if err = bs.connectDB(); err != nil {
-			return
-		}
+	if bs.ds == nil {
+		err = fmt.Errorf("LoadFromDb: DbService not configured")
+		return
 	}
+	if bs.ds.db == nil {
+		err = fmt.Errorf("LoadFromDb: Db not connected")
+		return
+	}
+
 	bs.mutex.Lock()
 	defer bs.mutex.Unlock()
 

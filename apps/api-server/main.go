@@ -52,24 +52,35 @@ func main() {
 	tag_api.Log.Info.Printf("-------- %s Server [Version %s-%s Build %s %s] --------",
 		settings.server, GitBranch, GitCommit, GitState, BuildDate)
 
+	// Initialize Db service
+	ds := tag_api.NewDbService(DbUser, DbPass, DbName, settings.hostDb, settings.portDb)
+	err = ds.Connect()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	defer ds.Close()
+
 	// Initialize content service
 	cs := tag_api.NewContentService(settings.boltFile, DbName)
-
-	// Configure Db
-	cs.ConfigureDB(DbUser, DbPass, DbName, settings.hostDb, settings.portDb)
-	defer cs.CloseDB()
-
-	// Configure NATS
+	cs.ConfigureDbService(ds)
 	cs.ConfigureNATS(settings.hostNATS, settings.portNATS, NSub)
+
+	// Initialize NATS
 	err = cs.ConnectNATS()
 	if err != nil {
-		return
+		fmt.Println(err)
+		os.Exit(1)
 	}
 	defer cs.CloseNATS()
 
-	// Load content from Db
+	// Load all content from Db
 	cs.EnableLoadAll()
-	cs.LoadFromDb()
+	err = cs.LoadFromDb()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 
 	// Initialize HTTP router
 	data.NewRouter(cs)

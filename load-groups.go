@@ -15,7 +15,7 @@ func (bs *BoltService) loadGroups() {
 	// Query groups
 	query = makeQuery(g, GroupQuery)
 	Log.Debug.Printf("GroupQuery: %s\n", query)
-	rows, err = bs.db.Queryx(query)
+	rows, err = bs.ds.db.Queryx(query)
 	if err != nil {
 		Log.Error.Printf("Load Groups: %v\n", err)
 		return
@@ -49,7 +49,7 @@ func (bs *BoltService) loadImagesGroups() {
 	// Query group-image mapping
 	query = makeQuery(ig, ImagesGroupsQuery)
 	Log.Debug.Printf("ImagesGroupsQuery: %s\n", query)
-	rows, err = bs.db.Queryx(query)
+	rows, err = bs.ds.db.Queryx(query)
 	if err != nil {
 		Log.Error.Printf("Load ImagesGroups: %v\n", err)
 		return

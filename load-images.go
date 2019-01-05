@@ -13,7 +13,7 @@ func (bs *BoltService) loadImages() {
 	// Query images
 	query = makeQuery(image, ImageQuery)
 	Log.Debug.Printf("ImageQuery: %s\n", query)
-	rows, err = bs.db.Queryx(query)
+	rows, err = bs.ds.db.Queryx(query)
 	if err != nil {
 		Log.Error.Printf("Load Images: %v\n", err)
 		return

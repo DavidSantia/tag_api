@@ -13,7 +13,7 @@ func (bs *BoltService) loadUsers() {
 	// Query users
 	query = makeQuery(user, UserQuery)
 	Log.Debug.Printf("UserQuery: %s\n", query)
-	rows, err = bs.db.Queryx(query)
+	rows, err = bs.ds.db.Queryx(query)
 	if err != nil {
 		Log.Error.Printf("Load Users: %v\n", err)
 		return

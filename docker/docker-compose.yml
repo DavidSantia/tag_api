@@ -3,14 +3,12 @@ services:
   tagdemo-db:
     image: tagdemo/mysql
     container_name: tagdemo-mysql
-    build: ./data
     expose:
      - "3306"
 
   tagdemo-api:
     image: tagdemo/api-server
     container_name: api-server
-    build: ./api-server
     ports:
      - "8080:8080"
     depends_on:
