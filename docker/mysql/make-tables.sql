@@ -3,7 +3,7 @@
 --
 
 CREATE TABLE IF NOT EXISTS groups (
-  id int(11) NOT NULL AUTO_INCREMENT,
+  id bigint(20) NOT NULL AUTO_INCREMENT,
   name varchar(50) DEFAULT NULL,
   sess_seconds int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS groups (
 --
 
 CREATE TABLE IF NOT EXISTS images (
-  id int(11) NOT NULL AUTO_INCREMENT,
+  id bigint(20) NOT NULL AUTO_INCREMENT,
   width int(11) DEFAULT NULL,
   height int(11) DEFAULT NULL,
   url varchar(255) DEFAULT NULL,
@@ -31,9 +31,9 @@ CREATE TABLE IF NOT EXISTS images (
 --
 
 CREATE TABLE IF NOT EXISTS images_groups (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  group_id int(11) NOT NULL,
-  image_id int(11) NOT NULL,
+  id bigint(20) NOT NULL AUTO_INCREMENT,
+  group_id bigint(20) NOT NULL,
+  image_id bigint(20) NOT NULL,
   PRIMARY KEY (`id`)
 ) DEFAULT CHARSET utf8;
 
@@ -42,8 +42,8 @@ CREATE TABLE IF NOT EXISTS images_groups (
 --
 
 CREATE TABLE IF NOT EXISTS users (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  group_id int(11) DEFAULT NULL,
+  id bigint(20) NOT NULL AUTO_INCREMENT,
+  group_id bigint(20) DEFAULT NULL,
   guid varchar(40) DEFAULT NULL,
   first_name varchar(50) DEFAULT NULL,
   middle_init varchar(2) DEFAULT NULL,

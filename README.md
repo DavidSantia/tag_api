@@ -39,9 +39,10 @@ You can also start the MySQL container manually, as follows:
 docker run --name tagdemo-mysql --rm -p 3306:3306 tagdemo/mysql
 ```
 As shown above, we are mapping the MySQL default port 3306 from the container, to 3306 on localhost.
+If this port assignment conflicts with a local installation of MySQL server, choose a different port.
 
-* If this conflicts with a local installations of MySQL server, specify a different port
-* If you change the MySQL port, also specify `-dbport` in the [api-server/Dockerfile](https://github.com/DavidSantia/tag_api/blob/master/docker/auth-server/Dockerfile) entrypoint.
+* For example, to map MySQL onto local port 6603, specify `–p 6603:3306`
+* Also specify `–dbport 6603` when running the API server
 
 The database will be ready after you see the message:
 ```
@@ -120,11 +121,11 @@ There is also a `clean.sh` script to remove containers and images from your prev
 ./clean.sh
 ```
 
-Then start the database, NATS server, and api-server as follows:
+Then start the database, NATS server, and API server as follows:
 ```sh
 docker-compose up
 ```
-The NATS server handles communication between the services.  In this Basic example, the API server server subscribes to NATS, but
+The NATS server handles communication between the services.  In this Basic example, the API server subscribes to NATS, but
 it doesn't do anything further.
 
 ## How it works
