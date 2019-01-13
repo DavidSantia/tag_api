@@ -3,6 +3,7 @@ services:
   tagdemo-db:
     image: tagdemo/mysql
     container_name: tagdemo-mysql
+    build: ./mysql
     ports:
      - "3306:3306"
   
