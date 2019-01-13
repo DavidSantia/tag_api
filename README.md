@@ -76,8 +76,32 @@ You can then browse to
 ## Developing
 For developing, you can run this server locally without Docker.
 
-### Build the API Server
-Build the API server as follows:
+### Build and Run the Database
+Build the database manually as follows:
+```sh
+cd docker
+docker build -t tagdemo/mysql ./mysql
+```
+You can then start the MySQL container as follows:
+```sh
+docker run --name tagdemo-mysql --rm -p 3306:3306 tagdemo/mysql
+```
+As shown above, we are mapping the MySQL default port 3306 from the container, to 3306 on localhost.
+
+* If this conflicts with a local installations of MySQL server, specify a different port
+* If you change the MySQL port, also specify `-dbport` in the [api-server/Dockerfile](https://github.com/DavidSantia/tag_api/blob/master/docker/auth-server/Dockerfile) entrypoint.
+
+The database will be ready after you see the message:
+```
+[Entrypoint] MySQL init process done. Ready for start up.
+```
+
+If you need to stop the MySQL container, use
+```sh
+docker stop tagdemo-mysql
+```
+### Build and Run the API Server
+In a separate terminal, build the API server as follows:
 ```sh
 cd apps/api-server
 govvv build
@@ -107,32 +131,7 @@ Usage of ./api-server:
     	Specify Api port (default "8080")
 ```
 
-### Build and Run the Database
-In a separate terminal, build the database manually as follows:
-```sh
-cd docker
-docker build -t tagdemo/mysql ./mysql
-```
-You can then start the MySQL container as follows:
-```sh
-docker run --name tagdemo-mysql --rm -p 3306:3306 tagdemo/mysql
-```
-As shown above, we are mapping the MySQL default port 3306 from the container, to 3306 on localhost.
-
-* If this conflicts with a local installations of MySQL server, specify a different port
-* If you change the MySQL port, also specify `-dbport` in the [api-server/Dockerfile](https://github.com/DavidSantia/tag_api/blob/master/docker/auth-server/Dockerfile) entrypoint.
-
-The database will be ready after you see the message:
-```
-[Entrypoint] MySQL init process done. Ready for start up.
-```
-
-If you need to stop the MySQL container, use
-```sh
-docker stop tagdemo-mysql
-```
-### Run the API Server
-Then run the app as follows:
+Then run the server as follows:
 ```sh
 ./api-server -dbhost 127.0.0.1 -dbload -debug
 ```
