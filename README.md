@@ -199,7 +199,7 @@ if err != nil {
 
 Notice we have automatically assembled the query as follows:
 ```sql
-SELECT id, width, height, url, title, artist, gallery, organization, media
+SELECT id, width, height, url, title, artist, gallery, organization
 FROM images i
 WHERE i.media IS NOT NULL
 ```
