@@ -5,14 +5,13 @@ package tag_api
 // Pointers to int/string to allow for 'null' value in JSON
 type Image struct {
 	Id           int64   `json:"id" db:"id"`
-	Width        int64   `json:"width" db:"width"`
-	Height       int64   `json:"height" db:"height"`
+	Width        int     `json:"width" db:"width"`
+	Height       int     `json:"height" db:"height"`
 	Url          string  `json:"url" db:"url"`
 	Title        *string `json:"title" db:"title"`
 	Artist       *string `json:"artist" db:"artist"`
 	Gallery      *string `json:"gallery" db:"gallery"`
 	Organization *string `json:"organization" db:"organization"`
-	Media        string  `json:"media" db:"media"`
 }
 
 const ImageQuery = `FROM images i
