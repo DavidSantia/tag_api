@@ -55,17 +55,17 @@ router.Handle("POST", "/authenticate", makeHandleAuthenticate(cs))
 router.Handle("GET", "/keepalive", makeHandleAuthKeepAlive(cs))
 ```
 
+By browsing to [localhost:8080/authenticate](http://localhost:8080/authenticate), you will see a test page with two buttons.
+![Figure 1: Architecture](https://raw.githubusercontent.com/DavidSantia/tag_api/master/README-2buttons.png)
+
+Each button authenticates you as a particular user from the sample database, either in the Basic or Premium group. Once authenticated, your browser will have a Session cookie to allow you to continue using the API.
+
 #### Content endpoints
 ```go
 router.Handle("GET", "/image", makeHandleAllImages(cs))
 router.Handle("GET", "/image/:Id", makeHandleImage(cs))
 router.Handle("GET", "/user", makeHandleUser(cs))
 ```
-
-By browsing to [localhost:8080/authenticate](http://localhost:8080/authenticate), you will see a test page with two buttons.
-![Figure 1: Architecture](https://raw.githubusercontent.com/DavidSantia/tag_api/master/README-2buttons.png)
-
-Each button authenticates you as a particular user from the sample database, either in the Basic or Premium group. Once authenticated, your browser will have a Session cookie to allow you to continue using the API.
 
 You can then browse to
 
