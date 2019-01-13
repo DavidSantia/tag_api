@@ -19,46 +19,64 @@ It also uses govvv to provide the Github version string in the code.
 go get "github.com/ahmetb/govvv"
 ```
 
-## Building Apps and Images
-A script `build.sh` is provided that automatically builds the apps and images for this project
+## Building and Running the System
+First run the `build.sh` script to compiles the apps and images.
 ```sh
 cd docker
 ./build.sh
 ```
-### Database Image
-Along with the other images, `build.sh` prepares the MySQL database.
-This can also be done manually, as follows:
+
+You should see the following images:
+```
+REPOSITORY                      TAG                 IMAGE ID            CREATED             SIZE
+tagdemo/api-server              latest              0fc6d6e09ab2        About an hour ago   8.98MB
+tagdemo/mysql                   latest              9d795daac22c        About an hour ago   255MB
+```
+
+There is also a `clean.sh` script to remove containers and images from your previous builds.
 ```sh
-cd docker
-docker build -t tagdemo/mysql ./mysql
+./clean.sh
 ```
 
-A `docker-compose.yml` file is provided to start the full system, including the database.
-You can also start the MySQL container manually, as follows:
+Then start the database, NATS server, and api-server as follows:
 ```sh
-docker run --name tagdemo-mysql --rm -p 3306:3306 tagdemo/mysql
+docker-compose up
 ```
-As shown above, we are mapping the MySQL default port 3306 from the container, to 3306 on localhost.
+The NATS server handles communication between the services.  In this Basic example, the API server server subscribes to NATS, but
+it doesn't do anything further.
 
-* If this conflicts with a local installations of MySQL server, specify a different port
-* If you change the MySQL port, also specify `-dbport` in the [api-server/Dockerfile](https://github.com/DavidSantia/tag_api/blob/master/docker/auth-server/Dockerfile) entrypoint.
+### Accessing the API
+Once you have the API server up and running, use your browser to authenticate and access data.
 
-The database will be ready after you see the message:
-```
-[Entrypoint] MySQL init process done. Ready for start up.
-```
-
-If you need to stop the MySQL container, use
-```sh
-docker stop tagdemo-mysql
+#### Authenticate endpoints
+```go
+router.Handle("GET", "/authenticate", handleAuthTestpage)
+router.Handle("POST", "/authenticate", makeHandleAuthenticate(cs))
+router.Handle("GET", "/keepalive", makeHandleAuthKeepAlive(cs))
 ```
 
-### API Server Image
-The `build.sh` script also makes the API server app and image.
+#### Content endpoints
+```go
+router.Handle("GET", "/image", makeHandleAllImages(cs))
+router.Handle("GET", "/image/:Id", makeHandleImage(cs))
+router.Handle("GET", "/user", makeHandleUser(cs))
+```
 
-#### Developing
-However, you can run this server locally without Docker, which is helpful when developing code.
+By browsing to [localhost:8080/authenticate](http://localhost:8080/authenticate), you will see a test page with two buttons.
+![Figure 1: Architecture](https://raw.githubusercontent.com/DavidSantia/tag_api/master/README-2buttons.png)
 
+Each button authenticates you as a particular user from the sample database, either in the Basic or Premium group. Once authenticated, your browser will have a Session cookie to allow you to continue using the API.
+
+You can then browse to
+
+* [localhost:8080/image](http://localhost:8080/image) to see images you have access to
+* [localhost:8080/image/4](http://localhost:8080/image/4) to see image id 4
+* [localhost:8080/user](http://localhost:8080/user) to see your user profile data
+
+## Developing
+For developing, you can run this server locally without Docker.
+
+### Build the API Server
 Build the API server as follows:
 ```sh
 cd apps/api-server
@@ -89,46 +107,37 @@ Usage of ./api-server:
     	Specify Api port (default "8080")
 ```
 
-In a separate terminal, run the Database and NATS services.
+### Build and Run the Database
+In a separate terminal, build the database manually as follows:
 ```sh
 cd docker
-docker-compose -f docker-compose-db-nats.yml up
+docker build -t tagdemo/mysql ./mysql
 ```
-This maps the MySQL and NATS ports to localhost.
+You can then start the MySQL container as follows:
+```sh
+docker run --name tagdemo-mysql --rm -p 3306:3306 tagdemo/mysql
+```
+As shown above, we are mapping the MySQL default port 3306 from the container, to 3306 on localhost.
 
+* If this conflicts with a local installations of MySQL server, specify a different port
+* If you change the MySQL port, also specify `-dbport` in the [api-server/Dockerfile](https://github.com/DavidSantia/tag_api/blob/master/docker/auth-server/Dockerfile) entrypoint.
+
+The database will be ready after you see the message:
+```
+[Entrypoint] MySQL init process done. Ready for start up.
+```
+
+If you need to stop the MySQL container, use
+```sh
+docker stop tagdemo-mysql
+```
+### Run the API Server
 Then run the app as follows:
 ```sh
 ./api-server -dbhost 127.0.0.1 -dbload -debug
 ```
 
-## Running the Basic Server
-First run the `build.sh` script to compiles the apps and images.
-```sh
-cd docker
-./build.sh
-```
-
-You should see the following images:
-```
-REPOSITORY                      TAG                 IMAGE ID            CREATED             SIZE
-tagdemo/api-server              latest              0fc6d6e09ab2        About an hour ago   8.98MB
-tagdemo/mysql                   latest              9d795daac22c        About an hour ago   255MB
-```
-
-There is also a `clean.sh` script to remove containers and images from your previous builds.
-```sh
-./clean.sh
-```
-
-Then start the database, NATS server, and api-server as follows:
-```sh
-docker-compose up
-```
-The NATS server handles communication between the services.  In this Basic example, the API server server subscribes to NATS, but
-it doesn't do anything further.
-
 ## How it works
-
 The database loader uses the Go [reflect](https://golang.org/pkg/reflect) package to auto-generate SELECT statements from the struct tags.
 
 ### Example Struct
@@ -214,31 +223,3 @@ for rows.Next() {
 	bs.ImageMap[image.Id] = image
 }
 ```
-### Accessing the API
-Once you have the API server up and running, use your browser to authenticate and access data.
-
-#### Authenticate endpoints
-```go
-router.Handle("GET", "/authenticate", handleAuthTestpage)
-router.Handle("POST", "/authenticate", makeHandleAuthenticate(cs))
-router.Handle("GET", "/keepalive", makeHandleAuthKeepAlive(cs))
-```
-
-#### Content endpoints
-```go
-router.Handle("GET", "/image", makeHandleAllImages(cs))
-router.Handle("GET", "/image/:Id", makeHandleImage(cs))
-router.Handle("GET", "/user", makeHandleUser(cs))
-```
-
-By browsing to [localhost:8080/authenticate](http://localhost:8080/authenticate), you will see a test page with two buttons.
-![Figure 1: Architecture](https://raw.githubusercontent.com/DavidSantia/tag_api/master/README-2buttons.png)
-
-Each button authenticates you as a particular user from the sample database, either in the Basic or Premium group. Once authenticated, your browser will have a Session cookie to allow you to continue using the API.
-
-You can then browse to
-
-* [localhost:8080/image](http://localhost:8080/image) to see images you have access to
-* [localhost:8080/image/4](http://localhost:8080/image/4) to see image id 4
-* [localhost:8080/user](http://localhost:8080/user) to see your user profile data
-
