@@ -163,7 +163,7 @@ Use `./api-server -debug` to debug the SQL queries that are being auto-generated
 ./api-server -dbhost 127.0.0.1 -dbload -debug
 DEBUG: 2019/01/05 14:12:01 GroupQuery: SELECT id, name, sess_seconds
 FROM groups g
-DEBUG: 2019/01/05 14:12:01 ImageQuery: SELECT id, width, height, url, title, artist, gallery, organization, media
+DEBUG: 2019/01/05 14:12:01 ImageQuery: SELECT id, width, height, url, title, artist, gallery, organization
 FROM images i
 WHERE i.media IS NOT NULL
  INFO: 2019/01/05 14:12:01 Load Images: 9 entries total
