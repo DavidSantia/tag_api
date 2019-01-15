@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS groups (
   id bigint(20) NOT NULL AUTO_INCREMENT,
   name varchar(50) DEFAULT NULL,
   sess_seconds int(11) DEFAULT NULL,
+  updated datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) DEFAULT CHARSET utf8;
 
@@ -23,6 +24,7 @@ CREATE TABLE IF NOT EXISTS images (
   gallery varchar(100) DEFAULT NULL,
   organization varchar(100) DEFAULT NULL,
   media varchar(25) DEFAULT NULL,
+  updated datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) DEFAULT CHARSET utf8;
 
@@ -34,6 +36,7 @@ CREATE TABLE IF NOT EXISTS images_groups (
   id bigint(20) NOT NULL AUTO_INCREMENT,
   group_id bigint(20) NOT NULL,
   image_id bigint(20) NOT NULL,
+  updated datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) DEFAULT CHARSET utf8;
 
@@ -55,5 +58,6 @@ CREATE TABLE IF NOT EXISTS users (
   zip varchar(10) DEFAULT NULL,
   gender varchar(1) DEFAULT NULL,
   status boolean DEFAULT NULL,
+  updated datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) DEFAULT CHARSET utf8;
