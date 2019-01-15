@@ -2,4 +2,4 @@ FROM scratch
 
 ADD api-server /
 
-ENTRYPOINT ["/api-server", "-dbhost", "tagdemo-db", "-nhost", "tagdemo-nats"]
+ENTRYPOINT ["/api-server", "-nhost", "tagdemo-nats", "-dbhost", "tagdemo-db", "-dbload"]
