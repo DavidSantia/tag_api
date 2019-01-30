@@ -6,10 +6,11 @@ Demonstrate how simple it is to prototype and modify an API in Go.
 
 By simply adjusting or adding a field to a Go struct, you automatically update both how the server loads from the database, as well as what it outputs for the API endpoint.
 
-* This project builds a Docker database image with sample data
-* The sample data images come from https://clients3.google.com/cast/chromecast/home
+* This project builds a MySQL database Docker image, initialized with sample data
+* The sample data uses photos from https://clients3.google.com/cast/chromecast/home
+* It also builds an api-server application in Go, which it installs on a Docker image
 
-It uses govvv to provide the Github version string in the code.  Install as follows:
+It uses govvv to provide the Github version string in the application.  Install as follows:
 ```sh
 go get "github.com/ahmetb/govvv"
 ```
