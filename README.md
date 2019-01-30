@@ -9,17 +9,19 @@ By simply adjusting or adding a field to a Go struct, you automatically update b
 * This project builds a Docker database image with sample data
 * The sample data images come from https://clients3.google.com/cast/chromecast/home
 
-You can clone the project with
-```sh
-go get "github.com/DavidSantia/tag_api"
-```
-
-It also uses govvv to provide the Github version string in the code.
+It uses govvv to provide the Github version string in the code.  Install as follows:
 ```sh
 go get "github.com/ahmetb/govvv"
 ```
 
+Then clone the `tag_api` project:
+```sh
+go get "github.com/DavidSantia/tag_api"
+cd $GOPATH/src/github.com/DavidSantia/tag_api
+```
+
 ## Building and Running the System
+Install govvv, clone the tag_api project, and start in the `tag_api` directory as shown above.
 First run the `build.sh` script to compiles the apps and images.
 ```sh
 cd docker
