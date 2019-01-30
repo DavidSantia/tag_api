@@ -21,8 +21,9 @@ cd $GOPATH/src/github.com/DavidSantia/tag_api
 ```
 
 ## Building and Running the System
-Install govvv, clone the tag_api project, and start in the `tag_api` directory as shown above.
-First run the `build.sh` script to compiles the apps and images.
+First install govvv, clone this project, and start in the `tag_api` directory as shown above.
+
+Then, run the `build.sh` script to compiles the apps and images.
 ```sh
 cd docker
 ./build.sh
