@@ -24,7 +24,7 @@ cd $GOPATH/src/github.com/DavidSantia/tag_api
 ## Building and Running the System
 First install govvv, clone this project, and start in the `tag_api` directory as shown above.
 
-Then, run the `build.sh` script to compiles the apps and images.
+Next, run the `build.sh` script to compiles the apps and images.
 ```sh
 cd docker
 ./build.sh
@@ -42,7 +42,7 @@ There is also a `clean.sh` script to remove containers and images from your prev
 ./clean.sh
 ```
 
-Then start the database, NATS server, and api-server as follows:
+Finally, start the database, NATS server, and api-server as follows:
 ```sh
 docker-compose up
 ```
