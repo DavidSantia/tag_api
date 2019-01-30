@@ -31,6 +31,7 @@ cd docker
 
 You should see the following images:
 ```
+docker images
 REPOSITORY                      TAG                 IMAGE ID            CREATED             SIZE
 tagdemo/api-server              latest              0fc6d6e09ab2        About an hour ago   8.98MB
 tagdemo/mysql                   latest              9d795daac22c        About an hour ago   255MB
