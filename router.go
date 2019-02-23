@@ -6,22 +6,25 @@ import (
 	"os"
 
 	"github.com/julienschmidt/httprouter"
+	"github.com/newrelic/go-agent"
 )
 
-func (data *ApiData) NewRouter(cs ContentService) (router *httprouter.Router) {
+func (data *ApiData) NewRouter(cs ContentService, app newrelic.Application) (router *httprouter.Router) {
 
 	data.router = httprouter.New()
-	data.router.Handle("GET", "/", handleIndex)
-	data.router.Handle("GET", "/authenticate", handleAuthTestpage)
-	data.router.Handle("POST", "/authenticate", makeHandleAuthenticate(cs))
-	data.router.Handle("GET", "/keepalive", makeHandleAuthKeepAlive(cs))
-	data.router.Handle("GET", "/image", makeHandleAllImages(cs))
-	data.router.Handle("GET", "/image/:Id", makeHandleImage(cs))
-	data.router.Handle("GET", "/user", makeHandleUser(cs))
+	data.router.Handle("GET", "/", WrapRouterHandle(app, handleIndex))
+	data.router.Handle("GET", "/authenticate", WrapRouterHandle(app, handleAuthTestpage))
+	data.router.Handle("POST", "/authenticate", WrapRouterHandle(app, makeHandleAuthenticate(cs)))
+	data.router.Handle("GET", "/keepalive", WrapRouterHandle(app, makeHandleAuthKeepAlive(cs)))
+	data.router.Handle("GET", "/image", WrapRouterHandle(app, makeHandleAllImages(cs)))
+	data.router.Handle("GET", "/image/:Id", WrapRouterHandle(app, makeHandleImage(cs)))
+	data.router.Handle("GET", "/user", WrapRouterHandle(app, makeHandleUser(cs)))
+
 	return
 }
 
 func handleIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
 	fmt.Fprint(w, "<b>API Demo endpoints</b>")
 	fmt.Fprint(w, "<ul><li>GET /authenticate</li>")
 	fmt.Fprint(w, "<li>POST /authenticate</li>")
