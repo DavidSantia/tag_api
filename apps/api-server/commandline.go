@@ -10,6 +10,7 @@ import (
 type Settings struct {
 	debug    bool
 	loadDb   bool
+	apmKey   string
 	logFile  string
 	server   string
 	boltFile string
@@ -28,7 +29,7 @@ func (settings *Settings) validateFlags() (err error) {
 	var dirInfo os.FileInfo
 
 	// Validate Logfile
-	if len(settings.logFile) != 0 {
+	if len(settings.logFile) > 0 {
 		relPath = filepath.Dir(settings.logFile)
 		if absolutePath, err = filepath.Abs(settings.logFile); err != nil {
 			return fmt.Errorf("-log %s %v", settings.logFile, err)
@@ -43,7 +44,7 @@ func (settings *Settings) validateFlags() (err error) {
 	}
 
 	// Validate BoltDb file
-	if len(settings.logFile) != 0 {
+	if len(settings.logFile) > 0 {
 		relPath = filepath.Dir(settings.logFile)
 		if absolutePath, err = filepath.Abs(settings.logFile); err != nil {
 			return fmt.Errorf("-logfile %s %v", settings.logFile, err)
@@ -56,6 +57,14 @@ func (settings *Settings) validateFlags() (err error) {
 		}
 		settings.logFile = absolutePath
 	}
+
+	// Validate APM key
+	if len(settings.apmKey) > 0 {
+		if len(settings.apmKey) != 40 {
+			return fmt.Errorf("-apmkey: must be 40 characters")
+		}
+	}
+
 	return
 }
 
@@ -64,6 +73,7 @@ func (settings *Settings) getCmdLine() (err error) {
 	// Define command-line arguments
 	flag.BoolVar(&settings.debug, "debug", false, "Debug logging")
 	flag.BoolVar(&settings.loadDb, "dbload", false, "Load from DB instead of BoltDB")
+	flag.StringVar(&settings.apmKey, "apmkey", "", "Specify APM license key")
 	flag.StringVar(&settings.logFile, "log", "", "Specify logging filename")
 	flag.StringVar(&settings.boltFile, "bolt", BoltDB, "Specify BoltDB filename")
 	flag.StringVar(&settings.hostApi, "host", "", "Specify Api host")
