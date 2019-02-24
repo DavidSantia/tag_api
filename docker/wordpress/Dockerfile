@@ -13,7 +13,6 @@ RUN apt-get install -y ${PLUGIN_VERSION}
 RUN echo | newrelic-install install
 
 ENV NEW_RELIC_LICENSE_KEY="" NEW_RELIC_LOG_LEVEL="info"
-ENV AGENT_NAME="" AGENT_HOST="" AGENT_USER="" AGENT_PASSWD="" AGENT_METRICS="status,newrelic"
 
 # Configure agent settings in /usr/local/etc/php/conf.d/newrelic.ini
 ADD start-apm.sh /usr/local/bin/
