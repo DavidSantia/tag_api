@@ -5,3 +5,4 @@
 # Executables
 apps/api-server/api-server
 docker/api-server/api-server
+docker/newrelic.env

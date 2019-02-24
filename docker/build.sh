@@ -22,6 +22,16 @@ for i in $APPS
   build $i
 done
 
+# Get New Relic MySQL plugin
+PLUGIN_VERSION=2.0.0
+PLUGIN=newrelic_mysql_plugin-$PLUGIN_VERSION.tar
+cd $GOPATH/src/$PROJECT/docker/mysql
+if ! [ -f $PLUGIN ]; then
+    echo "## Fetching $PLUGIN"
+    curl -L -o $PLUGIN.gz https://github.com/newrelic-platform/newrelic_mysql_java_plugin/raw/master/dist/$PLUGIN.gz
+    gunzip $PLUGIN.gz
+fi
+
 # Build docker images
 cd $GOPATH/src/$PROJECT/docker
 IMAGES=`ls -d */ | sed 's+/$++'`
@@ -29,3 +39,9 @@ for i in $IMAGES
   do echo "## Building docker image tagdemo/$i"
   docker build -t tagdemo/$i ./$i
 done
+
+# Make newrelic.env stub if it doesn't exist
+if ! [ -f newrelic.env ]; then
+  touch newrelic.env
+fi
+
