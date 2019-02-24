@@ -56,13 +56,13 @@ func main() {
 
 	if len(settings.apmKey) > 0 {
 		// Initialize New Relic agent
-		tag_api.Log.Info.Println("Initializing APM")
 		config := newrelic.NewConfig(settings.server, settings.apmKey)
 		app, err = newrelic.NewApplication(config)
 		if err != nil {
 			tag_api.Log.Error.Printf("Error initializing APM: %v", err)
 			return
 		}
+		tag_api.Log.Info.Println("New Relic monitor started")
 	}
 
 	// Initialize content service

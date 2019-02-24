@@ -59,9 +59,10 @@ func (settings *Settings) validateFlags() (err error) {
 	}
 
 	// Validate APM key
+	settings.apmKey = os.Getenv("NEW_RELIC_LICENSE_KEY")
 	if len(settings.apmKey) > 0 {
 		if len(settings.apmKey) != 40 {
-			return fmt.Errorf("-apmkey: must be 40 characters")
+			return fmt.Errorf("env var NEW_RELIC_LICENSE_KEY: key must be 40 characters")
 		}
 	}
 
@@ -73,7 +74,6 @@ func (settings *Settings) getCmdLine() (err error) {
 	// Define command-line arguments
 	flag.BoolVar(&settings.debug, "debug", false, "Debug logging")
 	flag.BoolVar(&settings.loadDb, "dbload", false, "Load from DB instead of BoltDB")
-	flag.StringVar(&settings.apmKey, "apmkey", "", "Specify APM license key")
 	flag.StringVar(&settings.logFile, "log", "", "Specify logging filename")
 	flag.StringVar(&settings.boltFile, "bolt", BoltDB, "Specify BoltDB filename")
 	flag.StringVar(&settings.hostApi, "host", "", "Specify Api host")
