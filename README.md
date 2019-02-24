@@ -67,6 +67,28 @@ You can then browse to
 * [localhost:8080/image/4](http://localhost:8080/image/4) to see image id 4
 * [localhost:8080/user](http://localhost:8080/user) to see your user profile data
 
+## Monitoring
+The API server and the MySQL container both have integrations with [New Relic](https://github.com/newrelic).  If you have a license key for this, you can enable monitoring simply by setting a docker environment variable.
+```sh
+cd docker
+cp newrelic.template.env newrelic.env
+```
+Then edit `newrelic.env` and set the license key on the first line:
+```
+NEW_RELIC_LICENSE_KEY=YOUR_LICENSE_KEY_HERE
+```
+
+Running docker-compose will automatically use this key, and you should see additional lines in the logs like so:
+```
+api-server      |  INFO: 2019/02/24 01:18:32 New Relic monitor started
+```
+and
+```
+tagdemo-mysql   | INFO: New Relic monitor started
+```
+
+The `build.sh` script creates an empty stub of `newrelic.env` if you are not using monitoring.
+
 ## Developing
 For developing, you can run this server locally without Docker.
 
