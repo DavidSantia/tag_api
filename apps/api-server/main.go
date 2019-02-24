@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/DavidSantia/tag_api"
+	"github.com/newrelic/go-agent"
 )
 
 // These fields are populated by govvv
@@ -32,8 +33,9 @@ const (
 )
 
 func main() {
+	var app newrelic.Application
 
-	settings := Settings{server: "Api"}
+	settings := Settings{server: "Tag Api"}
 
 	err := settings.getCmdLine()
 	if err != nil {
@@ -51,6 +53,17 @@ func main() {
 
 	tag_api.Log.Info.Printf("-------- %s Server [Version %s-%s Build %s %s] --------",
 		settings.server, GitBranch, GitCommit, GitState, BuildDate)
+
+	if len(settings.apmKey) > 0 {
+		// Initialize New Relic agent
+		config := newrelic.NewConfig(settings.server, settings.apmKey)
+		app, err = newrelic.NewApplication(config)
+		if err != nil {
+			tag_api.Log.Error.Printf("Error initializing APM: %v", err)
+			return
+		}
+		tag_api.Log.Info.Println("New Relic monitor started")
+	}
 
 	// Initialize content service
 	cs := tag_api.NewContentService(settings.boltFile, DbName)
@@ -88,7 +101,7 @@ func main() {
 	}
 
 	// Initialize HTTP router
-	data.NewRouter(cs)
+	data.NewRouter(cs, app)
 
 	data.StartServer()
 	os.Exit(0)

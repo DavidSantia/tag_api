@@ -3,6 +3,8 @@ services:
   tagdemo-db:
     image: tagdemo/mysql
     container_name: tagdemo-mysql
+    env_file:
+        - newrelic.env
 
   tagdemo-api:
     image: tagdemo/api-server
@@ -12,6 +14,8 @@ services:
     depends_on:
       - tagdemo-db
       - tagdemo-nats
+    env_file:
+        - newrelic.env
   
   tagdemo-nats:
     image: nats

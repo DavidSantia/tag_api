@@ -1,6 +1,8 @@
 # Test binary, build with `go test -c`
 *.test
+*.tar
 
 # Executables
 apps/api-server/api-server
 docker/api-server/api-server
+docker/newrelic.env
