@@ -8,13 +8,13 @@ ADD grant.sql /docker-entrypoint-initdb.d/
 ADD make-tables.sql /docker-entrypoint-initdb.d/
 ADD sample-data.sql /docker-entrypoint-initdb.d/
 
-RUN yum install -y java-1.8.0-openjdk
+#RUN yum install -y java-1.8.0-openjdk
 
-ENV PLUGIN_VERSION=2.0.0
-ENV NEW_RELIC_LICENSE_KEY="" NEW_RELIC_LOG_LEVEL="info"
-ENV AGENT_NAME="" AGENT_HOST="" AGENT_USER="" AGENT_PASSWD="" AGENT_METRICS="status,newrelic"
+#ENV PLUGIN_VERSION=2.0.0
+#ENV NEW_RELIC_LICENSE_KEY="" NEW_RELIC_LOG_LEVEL="info"
+#ENV AGENT_NAME="" AGENT_HOST="" AGENT_USER="" AGENT_PASSWD="" AGENT_METRICS="status,newrelic"
 
-ADD newrelic_mysql_plugin-${PLUGIN_VERSION}.tar /usr/local/
-ADD start-apm.sh /
-RUN sed -i '/^exec/i\sh /start-apm.sh &' /entrypoint.sh 
+#ADD newrelic_mysql_plugin-${PLUGIN_VERSION}.tar /usr/local/
+#ADD start-apm.sh /
+#RUN sed -i '/^exec/i\sh /start-apm.sh &' /entrypoint.sh 
 

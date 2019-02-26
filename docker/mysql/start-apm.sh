@@ -1,4 +1,6 @@
-if ! [ -z $NEW_RELIC_LICENSE_KEY ]; then
+#!/bin/sh
+
+if ! [ -z "$NEW_RELIC_LICENSE_KEY" ]; then
    cd /usr/local/newrelic_mysql_plugin-$PLUGIN_VERSION
    sed config/newrelic.template.json \
        -e "s+YOUR_LICENSE_KEY_HERE+$NEW_RELIC_LICENSE_KEY+" > config/newrelic.json
