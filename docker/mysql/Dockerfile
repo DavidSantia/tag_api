@@ -8,13 +8,22 @@ ADD grant.sql /docker-entrypoint-initdb.d/
 ADD make-tables.sql /docker-entrypoint-initdb.d/
 ADD sample-data.sql /docker-entrypoint-initdb.d/
 
-#RUN yum install -y java-1.8.0-openjdk
+ENV AGENT_VERSION=1.2.13-1
 
-#ENV PLUGIN_VERSION=2.0.0
-#ENV NEW_RELIC_LICENSE_KEY="" NEW_RELIC_LOG_LEVEL="info"
-#ENV AGENT_NAME="" AGENT_HOST="" AGENT_USER="" AGENT_PASSWD="" AGENT_METRICS="status,newrelic"
+RUN curl -s -o /etc/yum.repos.d/newrelic-infra.repo http://apt.newrelic.com/infrastructure_agent/linux/yum/el/7/x86_64/newrelic-infra.repo
+RUN yum makecache -y -q --disablerepo='*' --enablerepo='newrelic-infra'
+RUN yum install -y newrelic-infra
 
-#ADD newrelic_mysql_plugin-${PLUGIN_VERSION}.tar /usr/local/
-#ADD start-apm.sh /
-#RUN sed -i '/^exec/i\sh /start-apm.sh &' /entrypoint.sh 
+ENV NEW_RELIC_LICENSE_KEY="" NEW_RELIC_LOG_LEVEL="info"
+
+# Configure linux agent settings in /etc/newrelic-infra.yml
+ADD newrelic-infra.yml /etc/
+
+# Configure mysql integration settings in /etc/newrelic-infra/integrations.d
+ADD mysql-config.yml /etc/newrelic-infra/integrations.d/
+
+ADD nr-mysql /var/db/newrelic-infra/newrelic-integrations/bin/
+ADD mysql-definition.yml /var/db/newrelic-infra/newrelic-integrations/
+ADD start-agent.sh /
+RUN sed -i '/^exec/i\sh /start-agent.sh &' /entrypoint.sh 
 

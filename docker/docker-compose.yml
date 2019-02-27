@@ -35,12 +35,3 @@ services:
     env_file:
       - newrelic.env
 
-  tagdemo-nri:
-    image: tagdemo/nri
-    container_name: tagdemo-nri
-    links:
-      - "tagdemo-mysql:tagdemo-mysql"
-    depends_on:
-      - tagdemo-mysql
-    env_file:
-      - newrelic.env
