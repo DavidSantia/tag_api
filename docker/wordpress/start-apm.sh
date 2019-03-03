@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if ! [ -z "$NEW_RELIC_LOG_LEVEL" ]; then
-   set -i -e "/^;newrelic.loglevel/s+info+$NEW_RELIC_LOG_LEVEL+" \
+   sed -i -e "/^;newrelic.loglevel/s+info+$NEW_RELIC_LOG_LEVEL+" \
        /usr/local/etc/php/conf.d/newrelic.ini
 fi
 
