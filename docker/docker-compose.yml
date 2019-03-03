@@ -3,6 +3,8 @@ services:
   tagdemo-mysql:
     image: tagdemo/mysql
     container_name: tagdemo-mysql
+    ports:
+      - "3306:3306"
     env_file:
       - newrelic.env
 
@@ -32,3 +34,4 @@ services:
       - tagdemo-mysql
     env_file:
       - newrelic.env
+

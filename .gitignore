@@ -1,6 +1,6 @@
 # Test binary, build with `go test -c`
 *.test
-*.tar
+docker/mysql/*.tar
 
 # Executables
 apps/api-server/api-server
