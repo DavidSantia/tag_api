@@ -9,12 +9,12 @@ import (
 
 // HTTP Handlers
 
-func makeHandleUser(cs ContentService) func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func makeHandleUser(ds *DbService) func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		var err error
 		var user User
 
-		user, err = GetUserFromSession(cs, r)
+		user, err = GetUserFromSession(ds, r)
 		if err != nil {
 			HandleError(w, http.StatusUnauthorized, r.RequestURI, err)
 			return
@@ -29,18 +29,4 @@ func makeHandleUser(cs ContentService) func(w http.ResponseWriter, r *http.Reque
 
 		HandleReply(w, http.StatusOK, string(b))
 	}
-}
-
-func (bs *BoltService) addUser(msg []byte) (err error) {
-	var user User
-
-	// Add user
-	err = json.Unmarshal(msg, &user)
-	if err != nil {
-		return
-	}
-	bs.UserMap[user.Id] = user
-
-	Log.Info.Printf("Add User: %s %s [id=%d]\n", user.FirstName, user.LastName, user.Id)
-	return
 }

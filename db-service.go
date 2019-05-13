@@ -2,6 +2,7 @@ package tag_api
 
 import (
 	"fmt"
+	"github.com/go-sql-driver/mysql"
 	"reflect"
 	"strings"
 	"time"
@@ -58,6 +59,23 @@ func (ds *DbService) Connect() (err error) {
 
 func (ds *DbService) Close() {
 	ds.db.Close()
+}
+
+func (ds *DbService) Queryx(query string) (rows *sqlx.Rows, err error) {
+	var retry int
+
+	for retry = 0; retry <= DbConnectRetries; retry++ {
+		rows, err = ds.db.Queryx(query)
+		if err != nil {
+			if err == mysql.ErrInvalidConn {
+				Log.Warn.Printf("retry #%d MySQL Invalid Connection", retry+1)
+				continue
+			}
+			return
+		}
+		break
+	}
+	return
 }
 
 // Helper functions

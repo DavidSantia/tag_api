@@ -29,7 +29,7 @@ func (data *ApiData) InitSessions() {
 
 // HTTP Handlers
 
-func makeHandleAuthenticate(cs ContentService) func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func makeHandleAuthenticate(ds *DbService) func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		var user User
 		var b []byte
@@ -67,7 +67,7 @@ func makeHandleAuthenticate(cs ContentService) func(w http.ResponseWriter, r *ht
 		}
 
 		// Lookup user by id
-		user, err = userFind(cs, pl)
+		user, err = userFind(ds, pl)
 		if err != nil {
 			HandleError(w, http.StatusBadRequest, r.RequestURI, err)
 			return
@@ -132,7 +132,7 @@ func GetGroupIdFromSession(r *http.Request) (gid int64, err error) {
 	return
 }
 
-func GetUserFromSession(cs ContentService, r *http.Request) (user User, err error) {
+func GetUserFromSession(ds *DbService, r *http.Request) (user User, err error) {
 	var ok bool
 
 	// See if session is authenticated
@@ -144,14 +144,14 @@ func GetUserFromSession(cs ContentService, r *http.Request) (user User, err erro
 	}
 
 	// Lookup user
-	user, ok = cs.GetUser(id)
+	user, ok = ds.GetUser(id)
 	if !ok {
 		err = fmt.Errorf("UserId %d not valid", id)
 	}
 	return
 }
 
-func userFind(cs ContentService, pl JwtPayload) (user User, err error) {
+func userFind(ds *DbService, pl JwtPayload) (user User, err error) {
 	var ok bool
 
 	// Validate payload
@@ -165,7 +165,7 @@ func userFind(cs ContentService, pl JwtPayload) (user User, err error) {
 	}
 
 	// Lookup user
-	user, ok = cs.GetUser(pl.UserId)
+	user, ok = ds.GetUser(pl.UserId)
 	if !ok {
 		err = fmt.Errorf("UserId %d not valid", pl.UserId)
 		return

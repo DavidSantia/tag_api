@@ -4,7 +4,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func (bs *BoltService) loadImages() {
+func (bs *BoltService) loadImages(ds *DbService) {
 	var err error
 	var query string
 	var image Image
@@ -13,7 +13,7 @@ func (bs *BoltService) loadImages() {
 	// Query images
 	query = makeQuery(image, ImageQuery)
 	Log.Debug.Printf("ImageQuery: %s\n", query)
-	rows, err = bs.ds.db.Queryx(query)
+	rows, err = ds.Queryx(query)
 	if err != nil {
 		Log.Error.Printf("Load Images: %v\n", err)
 		return

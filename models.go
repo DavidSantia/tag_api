@@ -56,7 +56,7 @@ type User struct {
 }
 
 const UserQuery = `FROM users u
-WHERE u.status IS NOT NULL`
+WHERE u.id = %d`
 
 type UserMessage struct {
 	Command   string `json:"command"`

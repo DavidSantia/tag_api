@@ -6,7 +6,7 @@ import (
 
 // DB loaders
 
-func (bs *BoltService) loadGroups() {
+func (bs *BoltService) loadGroups(ds *DbService) {
 	var err error
 	var query string
 	var g Group
@@ -15,7 +15,7 @@ func (bs *BoltService) loadGroups() {
 	// Query groups
 	query = makeQuery(g, GroupQuery)
 	Log.Debug.Printf("GroupQuery: %s\n", query)
-	rows, err = bs.ds.db.Queryx(query)
+	rows, err = ds.Queryx(query)
 	if err != nil {
 		Log.Error.Printf("Load Groups: %v\n", err)
 		return
@@ -37,7 +37,7 @@ func (bs *BoltService) loadGroups() {
 	Log.Info.Printf("Load Groups: %d entries total\n", len(bs.GroupMap))
 }
 
-func (bs *BoltService) loadImagesGroups() {
+func (bs *BoltService) loadImagesGroups(ds *DbService) {
 	var err error
 	var query string
 	var g Group
@@ -49,7 +49,7 @@ func (bs *BoltService) loadImagesGroups() {
 	// Query group-image mapping
 	query = makeQuery(ig, ImagesGroupsQuery)
 	Log.Debug.Printf("ImagesGroupsQuery: %s\n", query)
-	rows, err = bs.ds.db.Queryx(query)
+	rows, err = ds.Queryx(query)
 	if err != nil {
 		Log.Error.Printf("Load ImagesGroups: %v\n", err)
 		return
