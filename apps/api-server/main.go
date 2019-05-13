@@ -57,6 +57,8 @@ func main() {
 	if len(settings.apmKey) > 0 {
 		// Initialize New Relic agent
 		config := newrelic.NewConfig(settings.server, settings.apmKey)
+		config.CrossApplicationTracer.Enabled = false
+		config.DistributedTracer.Enabled = true
 		app, err = newrelic.NewApplication(config)
 		if err != nil {
 			tag_api.Log.Error.Printf("Error initializing APM: %v", err)
