@@ -3,6 +3,7 @@ package tag_api
 import (
 	"fmt"
 	"github.com/go-sql-driver/mysql"
+	"github.com/newrelic/go-agent"
 	"reflect"
 	"strings"
 	"time"
@@ -63,6 +64,17 @@ func (ds *DbService) Close() {
 
 func (ds *DbService) Queryx(query string) (rows *sqlx.Rows, err error) {
 	var retry int
+
+	s := newrelic.DatastoreSegment{
+		Product:            newrelic.DatastoreMySQL,
+		Operation:          "SELECT",
+		ParameterizedQuery: query,
+		Host:               ds.settings.hostDb,
+		PortPathOrID:       ds.settings.portDb,
+		DatabaseName:       ds.settings.nameDb,
+	}
+	s.StartTime = newrelic.StartSegmentNow(CurrentTxn)
+	defer s.End()
 
 	for retry = 0; retry <= DbConnectRetries; retry++ {
 		rows, err = ds.db.Queryx(query)

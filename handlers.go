@@ -33,15 +33,17 @@ func HandleError(w http.ResponseWriter, status int, uri string, err error) {
 	fmt.Fprintln(w, string(b))
 }
 
+var CurrentTxn newrelic.Transaction
+
 func WrapRouterHandle(app newrelic.Application, handle httprouter.Handle) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 		Log.Debug.Printf("%s %s", r.Method, r.RequestURI)
 		if app != nil {
-			txn := app.StartTransaction(r.RequestURI, w, r)
-			defer txn.End()
+			CurrentTxn = app.StartTransaction(r.RequestURI, w, r)
+			defer CurrentTxn.End()
 
-			r = newrelic.RequestWithTransactionContext(r, txn)
+			r = newrelic.RequestWithTransactionContext(r, CurrentTxn)
 		}
 
 		handle(w, r, ps)
