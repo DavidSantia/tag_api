@@ -42,6 +42,24 @@ func (ds *DbService) Connect() (err error) {
 	resource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", ds.settings.userDb, ds.settings.passDb,
 		ds.settings.hostDb, ds.settings.portDb, ds.settings.nameDb)
 
+	// Set instrumentation
+	ImageSegment.Product = newrelic.DatastoreMySQL
+	ImageSegment.DatabaseName = ds.settings.nameDb
+	ImageSegment.Host = ds.settings.hostDb
+	ImageSegment.PortPathOrID = ds.settings.portDb
+	GroupSegment.Product = newrelic.DatastoreMySQL
+	GroupSegment.DatabaseName = ds.settings.nameDb
+	GroupSegment.Host = ds.settings.hostDb
+	GroupSegment.PortPathOrID = ds.settings.portDb
+	ImageGroupSegment.Product = newrelic.DatastoreMySQL
+	ImageGroupSegment.DatabaseName = ds.settings.nameDb
+	ImageGroupSegment.Host = ds.settings.hostDb
+	ImageGroupSegment.PortPathOrID = ds.settings.portDb
+	UserSegment.Product = newrelic.DatastoreMySQL
+	UserSegment.DatabaseName = ds.settings.nameDb
+	UserSegment.Host = ds.settings.hostDb
+	UserSegment.PortPathOrID = ds.settings.portDb
+
 	Log.Info.Printf("Connecting to %s on %s", ds.settings.nameDb, ds.settings.hostDb)
 	// Retry connection if DB still initializing
 	for i := 0; i < DbConnectRetries; i++ {
@@ -62,22 +80,11 @@ func (ds *DbService) Close() {
 	ds.db.Close()
 }
 
-func (ds *DbService) Queryx(query string) (rows *sqlx.Rows, err error) {
+func (ds *DbService) Queryx(query string, v ...interface{}) (rows *sqlx.Rows, err error) {
 	var retry int
 
-	s := newrelic.DatastoreSegment{
-		Product:            newrelic.DatastoreMySQL,
-		Operation:          "SELECT",
-		ParameterizedQuery: query,
-		Host:               ds.settings.hostDb,
-		PortPathOrID:       ds.settings.portDb,
-		DatabaseName:       ds.settings.nameDb,
-	}
-	s.StartTime = newrelic.StartSegmentNow(CurrentTxn)
-	defer s.End()
-
 	for retry = 0; retry <= DbConnectRetries; retry++ {
-		rows, err = ds.db.Queryx(query)
+		rows, err = ds.db.Queryx(query, v...)
 		if err != nil {
 			if err == mysql.ErrInvalidConn {
 				Log.Warn.Printf("retry #%d MySQL Invalid Connection", retry+1)

@@ -3,7 +3,6 @@ package tag_api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/newrelic/go-agent"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -31,21 +30,4 @@ func HandleError(w http.ResponseWriter, status int, uri string, err error) {
 	}
 	b, _ := json.Marshal(rMsg)
 	fmt.Fprintln(w, string(b))
-}
-
-var CurrentTxn newrelic.Transaction
-
-func WrapRouterHandle(app newrelic.Application, handle httprouter.Handle) httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-
-		Log.Debug.Printf("%s %s", r.Method, r.RequestURI)
-		if app != nil {
-			CurrentTxn = app.StartTransaction(r.RequestURI, w, r)
-			defer CurrentTxn.End()
-
-			r = newrelic.RequestWithTransactionContext(r, CurrentTxn)
-		}
-
-		handle(w, r, ps)
-	}
 }

@@ -2,18 +2,22 @@ package tag_api
 
 import (
 	"github.com/jmoiron/sqlx"
+	"github.com/newrelic/go-agent"
 )
 
-func (bs *BoltService) loadImages(ds *DbService) {
+func (bs *BoltService) loadImages(ds *DbService, txn newrelic.Transaction) {
 	var err error
-	var query string
 	var image Image
 	var rows *sqlx.Rows
 
+	if txn != nil {
+		ImageSegment.StartTime = newrelic.StartSegmentNow(txn)
+		defer ImageSegment.End()
+	}
+
 	// Query images
-	query = makeQuery(image, ImageQuery)
-	Log.Debug.Printf("ImageQuery: %s\n", query)
-	rows, err = ds.Queryx(query)
+	Log.Debug.Printf("ImageQuery: %s\n", ImageSegment.ParameterizedQuery)
+	rows, err = ds.Queryx(ImageSegment.ParameterizedQuery)
 	if err != nil {
 		Log.Error.Printf("Load Images: %v\n", err)
 		return

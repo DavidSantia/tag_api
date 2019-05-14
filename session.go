@@ -3,6 +3,7 @@ package tag_api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/newrelic/go-agent"
 	"net/http"
 	"strings"
 	"time"
@@ -67,7 +68,8 @@ func makeHandleAuthenticate(ds *DbService) func(w http.ResponseWriter, r *http.R
 		}
 
 		// Lookup user by id
-		user, err = userFind(ds, pl)
+		txn := newrelic.FromContext(r.Context())
+		user, err = userFind(ds, pl, txn)
 		if err != nil {
 			HandleError(w, http.StatusBadRequest, r.RequestURI, err)
 			return
@@ -144,14 +146,15 @@ func GetUserFromSession(ds *DbService, r *http.Request) (user User, err error) {
 	}
 
 	// Lookup user
-	user, ok = ds.GetUser(id)
+	txn := newrelic.FromContext(r.Context())
+	user, ok = ds.GetUser(id, txn)
 	if !ok {
 		err = fmt.Errorf("UserId %d not valid", id)
 	}
 	return
 }
 
-func userFind(ds *DbService, pl JwtPayload) (user User, err error) {
+func userFind(ds *DbService, pl JwtPayload, txn newrelic.Transaction) (user User, err error) {
 	var ok bool
 
 	// Validate payload
@@ -165,7 +168,7 @@ func userFind(ds *DbService, pl JwtPayload) (user User, err error) {
 	}
 
 	// Lookup user
-	user, ok = ds.GetUser(pl.UserId)
+	user, ok = ds.GetUser(pl.UserId, txn)
 	if !ok {
 		err = fmt.Errorf("UserId %d not valid", pl.UserId)
 		return

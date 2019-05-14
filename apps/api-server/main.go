@@ -34,6 +34,7 @@ const (
 
 func main() {
 	var app newrelic.Application
+	var txn newrelic.Transaction
 	var ds *tag_api.DbService
 
 	settings := Settings{server: "Tag Api"}
@@ -83,14 +84,19 @@ func main() {
 		defer ds.Close()
 
 		cs.EnableLoadAll()
-		tag_api.Log.Info.Println("Starting Load Db transaction")
-		tag_api.CurrentTxn = app.StartTransaction("loadDb", nil, nil)
-		err = cs.LoadFromDb(ds)
+		if app != nil {
+			tag_api.Log.Info.Println("Starting Load Db transaction")
+			txn = app.StartTransaction("loadDb", nil, nil)
+		}
+
+		err = cs.LoadFromDb(ds, txn)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		tag_api.CurrentTxn.End()
+		if app != nil {
+			txn.End()
+		}
 	} else {
 
 		// Option 2: Listen to NATS messaging for content updates from the updater service

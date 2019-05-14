@@ -2,6 +2,7 @@ package tag_api
 
 import (
 	"fmt"
+	"github.com/newrelic/go-agent"
 	"sync"
 
 	"github.com/boltdb/bolt"
@@ -17,7 +18,7 @@ type ContentService interface {
 	GetImage(id int64) (image Image, ok bool)
 	ListenForUpdates()
 	LoadCacheUpdates() (err error)
-	LoadFromDb(ds *DbService) (err error)
+	LoadFromDb(ds *DbService, txn newrelic.Transaction) (err error)
 	PublishUpdate() (err error)
 	ShowUpdates()
 	StoreDbUpdates()
@@ -97,7 +98,7 @@ func (bs *BoltService) LoadCacheUpdates() (err error) {
 	return
 }
 
-func (bs *BoltService) LoadFromDb(ds *DbService) (err error) {
+func (bs *BoltService) LoadFromDb(ds *DbService, txn newrelic.Transaction) (err error) {
 	if ds == nil {
 		err = fmt.Errorf("LoadFromDb: DbService not configured")
 		return
@@ -112,17 +113,17 @@ func (bs *BoltService) LoadFromDb(ds *DbService) (err error) {
 
 	// Load groups
 	if bs.settings.enableGroups {
-		bs.loadGroups(ds)
+		bs.loadGroups(ds, txn)
 	}
 
 	// Load images
 	if bs.settings.enableImages {
-		bs.loadImages(ds)
+		bs.loadImages(ds, txn)
 	}
 
 	// Load map of images for each group
 	if bs.settings.enableImagesGroups {
-		bs.loadImagesGroups(ds)
+		bs.loadImagesGroups(ds, txn)
 	}
 	return
 }

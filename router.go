@@ -42,3 +42,18 @@ func (data *ApiData) StartServer() {
 	os.Exit(1)
 	return
 }
+
+func WrapRouterHandle(app newrelic.Application, handle httprouter.Handle) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+		Log.Debug.Printf("%s %s", r.Method, r.RequestURI)
+		if app != nil {
+			txn := app.StartTransaction(r.RequestURI, w, r)
+			defer txn.End()
+
+			r = newrelic.RequestWithTransactionContext(r, txn)
+		}
+
+		handle(w, r, ps)
+	}
+}

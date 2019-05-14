@@ -171,9 +171,6 @@ type Image struct {
 	Gallery      *string `json:"gallery" db:"gallery"`
 	Organization *string `json:"organization" db:"organization"`
 }
-
-const ImageQuery = `FROM images i
-WHERE i.media IS NOT NULL`
 ```
 Tags shown above are interpreted as follows:
 * **json**: field name returned in API
@@ -184,23 +181,8 @@ The **sql** tag is useful when
 * using joined statements with otherwise ambiguous field names
 * you want to insert an IFNULL or other logic
 
-Use `./api-server -debug` to debug the SQL queries that are being auto-generated from the struct tags.
-```sh
-./api-server -dbhost 127.0.0.1 -dbload -debug
-DEBUG: 2019/01/05 14:12:01 GroupQuery: SELECT id, name, sess_seconds
-FROM groups g
-DEBUG: 2019/01/05 14:12:01 ImageQuery: SELECT id, width, height, url, title, artist, gallery, organization
-FROM images i
-WHERE i.media IS NOT NULL
- INFO: 2019/01/05 14:12:01 Load Images: 9 entries total
-DEBUG: 2019/01/05 14:12:01 ImagesGroupsQuery: SELECT group_id, image_id
-FROM images_groups ig
-DEBUG: 2019/01/05 14:12:01 UserQuery: SELECT id, group_id, guid, first_name, middle_init, last_name, email, addr, city, state, zip, gender, status
-FROM users u
-WHERE u.status IS NOT NULL
-```
 
-### func (data *ApiData) MakeQuery
+### func (data *ApiData) makeQuery
 ```go
 func (data *ApiData) MakeQuery(dt interface{}, query string, v ...interface{}) (finalq string)
 ```
@@ -210,27 +192,30 @@ This takes two inputs:
 
 It can also take optional **v** parameters.  If using these, include a format 'verb' (see the Go [fmt](https://golang.org/pkg/fmt/#hdr-Printing) package) in your query for each parameter.
 
-MakeQuery returns one output, the final query. This will be a combination of the auto-generated SELECT statement, and the rest of the query.
+It returns one output, the generated query.
 
 ### Example Code
 ```go
-query = makeQuery(image, ImageQuery)
-Log.Debug.Printf("ImageQuery: %s\n", query)
-rows, err = bs.ds.db.Queryx(query)
-if err != nil {
-	Log.Error.Printf("Load Images: %v\n", err)
-	return
-}
+query = makeQuery(Image{},"FROM images i WHERE i.media IS NOT NULL"),
 ```
 
-Notice we have automatically assembled the query as follows:
+This combines the fields in the *Image()* struct, along with the FROM clause provided, as follows:
 ```sql
 SELECT id, width, height, url, title, artist, gallery, organization
-FROM images i
-WHERE i.media IS NOT NULL
+FROM images i WHERE i.media IS NOT NULL
 ```
 
-Because this app uses the sqlx package, it loads each struct in one step with **rows.StructScan()** as shown
+The **api-server** `-debug` flag reveals the generated SQL queries.
+```sh
+DEBUG: 2019/05/14 16:31:59 GroupQuery: SELECT id, name, sess_seconds
+FROM groups g
+ INFO: 2019/05/14 16:31:59 Load Groups: 3 entries total
+DEBUG: 2019/05/14 16:31:59 ImageQuery: SELECT id, width, height, url, title, artist, gallery, organization
+FROM images i WHERE i.media IS NOT NULL
+ INFO: 2019/05/14 16:31:59 Load Images: 12 entries total
+```
+
+Using the [sqlx](https://jmoiron.github.io/sqlx) package, the code loads each object with a single *rows.StructScan()* step as shown:
 ```go
 for rows.Next() {
 	err = rows.StructScan(&image)
@@ -241,4 +226,5 @@ for rows.Next() {
 	bs.ImageMap[image.Id] = image
 }
 ```
+Above we see all the parameters from *makeQuery()* are loaded into an image object.
 
