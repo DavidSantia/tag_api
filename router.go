@@ -9,16 +9,16 @@ import (
 	"github.com/newrelic/go-agent"
 )
 
-func (data *ApiData) NewRouter(cs ContentService, app newrelic.Application) (router *httprouter.Router) {
+func (data *ApiData) NewRouter(cs ContentService, ds *DbService, app newrelic.Application) (router *httprouter.Router) {
 
 	data.router = httprouter.New()
 	data.router.Handle("GET", "/", WrapRouterHandle(app, handleIndex))
 	data.router.Handle("GET", "/authenticate", WrapRouterHandle(app, handleAuthTestpage))
-	data.router.Handle("POST", "/authenticate", WrapRouterHandle(app, makeHandleAuthenticate(cs)))
+	data.router.Handle("POST", "/authenticate", WrapRouterHandle(app, makeHandleAuthenticate(ds)))
 	data.router.Handle("GET", "/keepalive", WrapRouterHandle(app, makeHandleAuthKeepAlive(cs)))
 	data.router.Handle("GET", "/image", WrapRouterHandle(app, makeHandleAllImages(cs)))
 	data.router.Handle("GET", "/image/:Id", WrapRouterHandle(app, makeHandleImage(cs)))
-	data.router.Handle("GET", "/user", WrapRouterHandle(app, makeHandleUser(cs)))
+	data.router.Handle("GET", "/user", WrapRouterHandle(app, makeHandleUser(ds)))
 
 	return
 }
@@ -41,4 +41,19 @@ func (data *ApiData) StartServer() {
 	fmt.Println(err)
 	os.Exit(1)
 	return
+}
+
+func WrapRouterHandle(app newrelic.Application, handle httprouter.Handle) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+		Log.Debug.Printf("%s %s", r.Method, r.RequestURI)
+		if app != nil {
+			txn := app.StartTransaction(r.RequestURI, w, r)
+			defer txn.End()
+
+			r = newrelic.RequestWithTransactionContext(r, txn)
+		}
+
+		handle(w, r, ps)
+	}
 }

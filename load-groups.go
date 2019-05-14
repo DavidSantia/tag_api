@@ -2,20 +2,24 @@ package tag_api
 
 import (
 	"github.com/jmoiron/sqlx"
+	"github.com/newrelic/go-agent"
 )
 
 // DB loaders
 
-func (bs *BoltService) loadGroups() {
+func (bs *BoltService) loadGroups(ds *DbService, txn newrelic.Transaction) {
 	var err error
-	var query string
 	var g Group
 	var rows *sqlx.Rows
 
+	if txn != nil {
+		GroupSegment.StartTime = newrelic.StartSegmentNow(txn)
+		defer GroupSegment.End()
+	}
+
 	// Query groups
-	query = makeQuery(g, GroupQuery)
-	Log.Debug.Printf("GroupQuery: %s\n", query)
-	rows, err = bs.ds.db.Queryx(query)
+	Log.Debug.Printf("GroupQuery: %s\n", GroupSegment.ParameterizedQuery)
+	rows, err = ds.Queryx(GroupSegment.ParameterizedQuery)
 	if err != nil {
 		Log.Error.Printf("Load Groups: %v\n", err)
 		return
@@ -37,19 +41,22 @@ func (bs *BoltService) loadGroups() {
 	Log.Info.Printf("Load Groups: %d entries total\n", len(bs.GroupMap))
 }
 
-func (bs *BoltService) loadImagesGroups() {
+func (bs *BoltService) loadImagesGroups(ds *DbService, txn newrelic.Transaction) {
 	var err error
-	var query string
 	var g Group
 	var ig ImagesGroups
 	var rows *sqlx.Rows
 	var ok bool
 	var entries, ignored int
 
+	if txn != nil {
+		ImageGroupSegment.StartTime = newrelic.StartSegmentNow(txn)
+		defer ImageGroupSegment.End()
+	}
+
 	// Query group-image mapping
-	query = makeQuery(ig, ImagesGroupsQuery)
-	Log.Debug.Printf("ImagesGroupsQuery: %s\n", query)
-	rows, err = bs.ds.db.Queryx(query)
+	Log.Debug.Printf("ImagesGroupsQuery: %s\n", ImageGroupSegment.ParameterizedQuery)
+	rows, err = ds.Queryx(ImageGroupSegment.ParameterizedQuery)
 	if err != nil {
 		Log.Error.Printf("Load ImagesGroups: %v\n", err)
 		return

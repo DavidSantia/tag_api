@@ -27,10 +27,7 @@ func (bs *BoltService) listenNATSSub() {
 
 		switch qMsg.Command {
 		case "update":
-			err = bs.addUser(msg.Data)
-			if err != nil {
-				Log.Error.Printf("Content Update: %v\n", err)
-			}
+			Log.Info.Printf("Content Update: %v\n", msg)
 		default:
 			Log.Info.Printf("Unrecognized command: %s\n", qMsg.Command)
 		}

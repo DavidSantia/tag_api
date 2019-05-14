@@ -1,5 +1,9 @@
 package tag_api
 
+import (
+	"github.com/newrelic/go-agent"
+)
+
 // Image data
 
 // Pointers to int/string to allow for 'null' value in JSON
@@ -14,8 +18,11 @@ type Image struct {
 	Organization *string `json:"organization" db:"organization"`
 }
 
-const ImageQuery = `FROM images i
-WHERE i.media IS NOT NULL`
+var ImageSegment = newrelic.DatastoreSegment{
+	Collection:         "images",
+	Operation:          "SELECT",
+	ParameterizedQuery: makeQuery(Image{}, "FROM images i WHERE i.media IS NOT NULL"),
+}
 
 // Group data
 
@@ -26,7 +33,11 @@ type Group struct {
 	ImagesGroupsMap ImagesGroupsMap `json:"-"`
 }
 
-const GroupQuery = `FROM groups g`
+var GroupSegment = newrelic.DatastoreSegment{
+	Collection:         "groups",
+	Operation:          "SELECT",
+	ParameterizedQuery: makeQuery(Group{}, "FROM groups g"),
+}
 
 // ImagesGroups data
 
@@ -35,7 +46,11 @@ type ImagesGroups struct {
 	ImageId int64 `json:"image_id" db:"image_id"`
 }
 
-const ImagesGroupsQuery = `FROM images_groups ig`
+var ImageGroupSegment = newrelic.DatastoreSegment{
+	Collection:         "images_groups",
+	Operation:          "SELECT",
+	ParameterizedQuery: makeQuery(ImagesGroups{}, "FROM images_groups ig"),
+}
 
 // User data
 
@@ -55,8 +70,11 @@ type User struct {
 	Status     bool   `json:"status" db:"status"`
 }
 
-const UserQuery = `FROM users u
-WHERE u.status IS NOT NULL`
+var UserSegment = newrelic.DatastoreSegment{
+	Collection:         "users",
+	Operation:          "SELECT",
+	ParameterizedQuery: makeQuery(User{}, "FROM users u WHERE u.id = ?"),
+}
 
 type UserMessage struct {
 	Command   string `json:"command"`

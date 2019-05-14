@@ -34,6 +34,8 @@ const (
 
 func main() {
 	var app newrelic.Application
+	var txn newrelic.Transaction
+	var ds *tag_api.DbService
 
 	settings := Settings{server: "Tag Api"}
 
@@ -72,22 +74,28 @@ func main() {
 
 	// This illustrates two ways of using the content service
 	if settings.loadDb {
-
 		// Option 1: Load all content from Db
-		ds := tag_api.NewDbService(DbUser, DbPass, DbName, settings.hostDb, settings.portDb)
+		ds = tag_api.NewDbService(DbUser, DbPass, DbName, settings.hostDb, settings.portDb)
 		err = ds.Connect()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 		defer ds.Close()
-		cs.ConfigureDbService(ds)
 
 		cs.EnableLoadAll()
-		err = cs.LoadFromDb()
+		if app != nil {
+			tag_api.Log.Info.Println("Starting Load Db transaction")
+			txn = app.StartTransaction("loadDb", nil, nil)
+		}
+
+		err = cs.LoadFromDb(ds, txn)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
+		}
+		if app != nil {
+			txn.End()
 		}
 	} else {
 
@@ -103,7 +111,7 @@ func main() {
 	}
 
 	// Initialize HTTP router
-	data.NewRouter(cs, app)
+	data.NewRouter(cs, ds, app)
 
 	data.StartServer()
 	os.Exit(0)
